@@ -413,9 +413,12 @@ function renderLeerplan() {
         </div>
         <div class="topic-body">
           <div class="topic-uitleg">${info.uitleg.replace(/\n/g, '<br>')}</div>
-          <div class="prompt-label">Claude-prompt</div>
-          <div class="prompt-box">${info.prompt}</div>
-          <button class="btn-copy-small" onclick="copyTopicPrompt(this, '${idx}')">Kopieer prompt</button>
+          <button class="btn-copy-small" style="background:transparent;color:var(--gold);border:1px solid var(--gold-light);" onclick="toggleTopicPrompt(this, '${idx}')">Laat prompt zien ▾</button>
+          <div class="prompt-body-${idx}" style="display:none;margin-top:0.75rem;">
+            <div class="prompt-label">Claude-prompt</div>
+            <div class="prompt-box">${info.prompt}</div>
+            <button class="btn-copy-small" onclick="copyTopicPrompt(this, '${idx}')">Kopieer prompt</button>
+          </div>
         </div>
       </div>`;
   });
@@ -457,6 +460,13 @@ function copyTopicPrompt(btn, idx) {
       btn.classList.remove('copied');
     }, 2000);
   });
+}
+
+function toggleTopicPrompt(btn, idx) {
+  const body = document.querySelector(`.prompt-body-${idx}`);
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? 'Verberg prompt ▴' : 'Laat prompt zien ▾';
 }
 
 function getSortedTopics() {

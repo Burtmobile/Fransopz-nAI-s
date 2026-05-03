@@ -451,10 +451,15 @@
       <div id="breakdown-list"></div>
     </div>
     <div class="prompt-card" id="prompt-card">
-      <h3>🤖 Jouw Claude-prompt</h3>
-      <p>Kopieer en plak deze prompt in Claude om direct aan je zwakke punten te werken.</p>
-      <div class="prompt-text" id="prompt-text"></div>
-      <button class="btn-copy" id="btn-copy" onclick="copyPrompt(this)">Kopieer prompt</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <h3 style="margin-bottom:0">🤖 Jouw Claude-prompt</h3>
+        <button class="btn-copy" id="btn-toggle-prompt" onclick="togglePrompt()" style="width:auto;padding:0.4rem 0.9rem;font-size:0.78rem;background:transparent;color:var(--gold);border:1px solid var(--gold-light);">Laat prompt zien ▾</button>
+      </div>
+      <div id="prompt-body" style="display:none;margin-top:0.9rem;">
+        <p>Kopieer en plak deze prompt in Claude om direct aan je zwakke punten te werken.</p>
+        <div class="prompt-text" id="prompt-text" style="margin-top:0.75rem;"></div>
+        <button class="btn-copy" id="btn-copy" onclick="copyPrompt(this)" style="margin-top:0.75rem;">Kopieer prompt</button>
+      </div>
     </div>
     <div class="result-actions">
       <a href="leerplan-na-test.html" class="btn-action primary">📋 Bekijk mijn leerplan</a>
@@ -709,6 +714,14 @@ Kun je per onderwerp:
 3. Drie gevarieerde oefenzinnen geven met daarna de antwoorden
 
 Sluit af met een B2-schrijfopdracht van 5-6 zinnen waarbij ik minstens twee van deze structuren moet gebruiken.`;
+}
+
+function togglePrompt() {
+  const body = document.getElementById('prompt-body');
+  const btn = document.getElementById('btn-toggle-prompt');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? 'Verberg prompt ▴' : 'Laat prompt zien ▾';
 }
 
 function copyPrompt(btn) {
