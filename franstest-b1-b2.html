@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niveautest B1→B2 · Frans op z'n AI's</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --ink: #1a1a2e;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-pale: #fdf6e3;
+    --blue-fr: #003189;
+    --red-fr: #c0392b;
+    --muted: #7a7a8a;
+    --card: #ffffff;
+    --border: #e8e4dc;
+    --correct: #2e7d52;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--blue-fr);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  nav a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: #fff; }
+  nav .sep { color: rgba(255,255,255,0.3); }
+  nav .site-title {
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--blue-fr) 0%, #001a5c 100%);
+    color: white;
+    padding: 3rem 1.5rem 2.5rem;
+    text-align: center;
+  }
+  .hero-flag {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .hero p {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* INTRO */
+  .intro-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .intro-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    color: var(--blue-fr);
+    margin-bottom: 0.75rem;
+  }
+  .intro-card p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
+  }
+  .topics-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+  .topic-tag {
+    background: var(--gold-pale);
+    border: 1px solid var(--gold-light);
+    color: var(--ink);
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+  }
+  .btn-start {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+    background: var(--blue-fr);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.9rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-start:hover { background: #001a5c; transform: translateY(-1px); }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 0.4rem;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .question-topic {
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+  .question-text {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    color: var(--ink);
+  }
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .option-btn {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    color: var(--ink);
+  }
+  .option-btn:hover { border-color: var(--gold); background: var(--gold-pale); }
+  .option-btn.correct {
+    background: #e8f5ee;
+    border-color: var(--correct);
+    color: var(--correct);
+    font-weight: 500;
+  }
+  .option-btn.wrong {
+    background: #fdecea;
+    border-color: var(--red-fr);
+    color: var(--red-fr);
+  }
+  .option-btn:disabled { cursor: not-allowed; }
+
+  /* FEEDBACK */
+  .feedback {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    line-height: 1.55;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #e8f5ee; color: var(--correct); border: 1px solid #b8dcca; }
+  .feedback.nok { background: #fdecea; color: var(--red-fr); border: 1px solid #f5c6c2; }
+  .feedback strong { font-weight: 600; }
+
+  .btn-next {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-next:hover { background: #2a2a4a; }
+
+  /* RESULT */
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .score-ring {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    border: 5px solid;
+  }
+  .score-ring.high { border-color: var(--correct); color: var(--correct); background: #e8f5ee; }
+  .score-ring.mid  { border-color: var(--gold);    color: var(--gold);    background: var(--gold-pale); }
+  .score-ring.low  { border-color: var(--red-fr);  color: var(--red-fr);  background: #fdecea; }
+  .result-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    margin-bottom: 0.4rem;
+  }
+  .result-sub {
+    font-size: 0.83rem;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* BREAKDOWN */
+  .breakdown-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .breakdown-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--ink);
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.82rem;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .bd-icon { font-size: 1rem; flex-shrink: 0; }
+  .bd-topic { flex: 1; color: var(--ink); }
+  .bd-answer { color: var(--muted); font-size: 0.78rem; }
+
+  /* PROMPT */
+  .prompt-card {
+    background: var(--gold-pale);
+    border: 1px solid var(--gold-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .prompt-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    color: var(--blue-fr);
+    margin-bottom: 0.4rem;
+  }
+  .prompt-card p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+    line-height: 1.5;
+  }
+  .prompt-text {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    color: var(--ink);
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .btn-copy {
+    display: block;
+    width: 100%;
+    margin-top: 0.75rem;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-copy:hover { background: var(--gold-light); }
+  .btn-copy.copied { background: var(--correct); color: white; }
+
+  .result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .btn-action {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-action.primary { background: var(--blue-fr); color: white; }
+  .btn-action.primary:hover { background: #001a5c; }
+  .btn-action.secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-action.secondary:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* HIDDEN */
+  #quiz-section  { display: none; }
+  #result-section { display: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="site-title">Frans op z'n AI's</a>
+  <span class="sep">›</span>
+  <a href="#">Niveautest</a>
+</nav>
+
+<div class="hero">
+  <span class="hero-flag">🇫🇷</span>
+  <h1>Niveautest B1 → B2</h1>
+  <p>10 vragen over grammatica en structuren die het verschil maken tussen B1 en B2.</p>
+</div>
+
+<main>
+
+  <!-- INTRO -->
+  <div id="intro-section">
+    <div class="intro-card">
+      <h2>Wat test ik hier?</h2>
+      <p>Deze test meet of je de grammaticale structuren van B2 kent. Je krijgt 10 meerkeuzevragen over de volgende onderwerpen:</p>
+      <div class="topics-grid">
+        <span class="topic-tag">Subjonctif</span>
+        <span class="topic-tag">Après avoir/être</span>
+        <span class="topic-tag">Passief</span>
+        <span class="topic-tag">Dont</span>
+        <span class="topic-tag">Imparfait vs. Passé Composé</span>
+        <span class="topic-tag">Bien que</span>
+        <span class="topic-tag">Si-zinnen</span>
+        <span class="topic-tag">Gérondif</span>
+        <span class="topic-tag">Nominalisering</span>
+        <span class="topic-tag">Au cas où</span>
+      </div>
+      <p style="margin-top:1rem;">Na afloop zie je je score, welke onderwerpen aandacht nodig hebben, en een kant-en-klare prompt voor Claude om ermee aan de slag te gaan.</p>
+      <button class="btn-start" onclick="startQuiz()">Start de test →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-section">
+    <div class="progress-label" id="progress-label">Vraag 1 van 10</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-card" id="question-card">
+      <div class="question-topic" id="q-topic"></div>
+      <div class="question-text" id="q-text"></div>
+      <div class="options" id="q-options"></div>
+      <div class="feedback" id="q-feedback"></div>
+      <button class="btn-next" id="btn-next" style="display:none" onclick="nextQuestion()">Volgende vraag →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-section">
+    <div class="result-card" id="result-card">
+      <div class="score-ring" id="score-ring"></div>
+      <div class="result-title" id="result-title"></div>
+      <p class="result-sub" id="result-sub"></p>
+    </div>
+    <div class="breakdown-card">
+      <h3>Per onderwerp</h3>
+      <div id="breakdown-list"></div>
+    </div>
+    <div class="prompt-card" id="prompt-card">
+      <h3>🤖 Jouw Claude-prompt</h3>
+      <p>Kopieer en plak deze prompt in Claude om direct aan je zwakke punten te werken.</p>
+      <div class="prompt-text" id="prompt-text"></div>
+      <button class="btn-copy" id="btn-copy" onclick="copyPrompt(this)">Kopieer prompt</button>
+    </div>
+    <div class="result-actions">
+      <a href="leerplan-na-test.html" class="btn-action primary">📋 Bekijk mijn leerplan</a>
+      <button class="btn-action secondary" onclick="restartQuiz()">↩ Test opnieuw maken</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const vragen = [
+  {
+    topic: "Subjonctif",
+    tekst: "Je veux que tu ___ à l'heure demain.",
+    opties: ["es", "sois", "sera", "être"],
+    correct: 1,
+    uitleg: "<strong>sois</strong> is de subjonctif van 'être'. Na 'vouloir que' gebruik je altijd de subjonctif. De subjonctif van être: que je sois, que tu sois, qu'il soit…"
+  },
+  {
+    topic: "Après avoir/être",
+    tekst: "___ mangé, il est parti se promener.",
+    opties: ["Avant de", "Après avoir", "En ayant", "Dès que"],
+    correct: 1,
+    uitleg: "<strong>Après avoir</strong> + infinitif passé (mangé) geeft aan dat de eerste actie volledig afgerond was vóór de tweede begon. Let op: met être-werkwoorden zeg je 'après être parti(e)'."
+  },
+  {
+    topic: "Passief",
+    tekst: "Welke zin is correct passief?",
+    opties: [
+      "Le chef prépare le repas.",
+      "Le repas est préparé par le chef.",
+      "Le repas prépare le chef.",
+      "Par le chef, le repas a préparer."
+    ],
+    correct: 1,
+    uitleg: "<strong>Le repas est préparé par le chef.</strong> — passief in Frans: être + voltooid deelwoord + par + agent. Het deelwoord past zich aan het onderwerp aan (repas = mannelijk enkelvoud → préparé)."
+  },
+  {
+    topic: "Dont",
+    tekst: "C'est le livre ___ j'ai besoin.",
+    opties: ["que", "qui", "dont", "où"],
+    correct: 2,
+    uitleg: "<strong>dont</strong> vervangt 'de + iets'. Hier: j'ai besoin <em>de</em> ce livre → dont. Vergelijk: que vervangt direct object, qui vervangt subject, où vervangt een plaats."
+  },
+  {
+    topic: "Imparfait vs. Passé Composé",
+    tekst: "Quand j'étais jeune, j'___ souvent à l'école à vélo.",
+    opties: ["suis allé", "allais", "irai", "aille"],
+    correct: 1,
+    uitleg: "<strong>allais</strong> (imparfait) — de imparfait beschrijft een herhaalde gewoonte in het verleden. 'Souvent' en 'quand j'étais jeune' zijn signaalwoorden voor de imparfait."
+  },
+  {
+    topic: "Bien que",
+    tekst: "Bien qu'il ___ fatigué, il a continué à travailler.",
+    opties: ["est", "était", "soit", "sera"],
+    correct: 2,
+    uitleg: "<strong>soit</strong> (subjonctif van être) — na 'bien que' gebruik je altijd de subjonctif. Andere woorden die subjonctif vereisen: quoique, pour que, à moins que…"
+  },
+  {
+    topic: "Si-zinnen",
+    tekst: "Welke zin is correct voor een hypothetische situatie in het verleden?",
+    opties: [
+      "Si j'aurais su, je venais.",
+      "Si j'avais su, je serais venu.",
+      "Si je savais, je viendrai.",
+      "Si j'ai su, je serai venu."
+    ],
+    correct: 1,
+    uitleg: "<strong>Si j'avais su, je serais venu.</strong> — voor hypotheses over het verleden: si + plus-que-parfait → conditionnel passé. Nooit 'si + conditionnel' — dat is een klassieke fout!"
+  },
+  {
+    topic: "Gérondif",
+    tekst: "Il a appris le français ___ des podcasts.",
+    opties: ["en écoutant", "écouté", "d'écouter", "écouter"],
+    correct: 0,
+    uitleg: "<strong>en écoutant</strong> — de gérondif (en + présent participe) geeft aan hoe iets gebeurt. Vorming: stam van nous-vorm + -ant. Nous écoutons → écoutant."
+  },
+  {
+    topic: "Nominalisering",
+    tekst: "Kies de correcte nominalisering van 'il a décidé de partir':",
+    opties: [
+      "Sa décision de partir",
+      "Son décision partir",
+      "La décision qu'il part",
+      "Décider de partir de lui"
+    ],
+    correct: 0,
+    uitleg: "<strong>Sa décision de partir</strong> — nominalisering: werkwoord → zelfstandig naamwoord. 'Décider' → 'la décision'. De structuur is: bezittelijk voornaamwoord + zelfstandig naamwoord + de + infinitief."
+  },
+  {
+    topic: "Au cas où",
+    tekst: "_____ il pleuvrait, prenez un parapluie.",
+    opties: ["Si", "Au cas où", "Quand", "Puisque"],
+    correct: 1,
+    uitleg: "<strong>Au cas où</strong> + conditionnel — dit drukt een voorzorgsmaatregel uit ('voor het geval dat'). Verschil met 'si': si + indicatief, au cas où + conditionnel."
+  }
+];
+
+let huidigeVraag = 0;
+let antwoorden = [];
+let beantwoord = false;
+
+function startQuiz() {
+  huidigeVraag = 0;
+  antwoorden = [];
+  beantwoord = false;
+  document.getElementById('intro-section').style.display = 'none';
+  document.getElementById('quiz-section').style.display = 'block';
+  renderVraag();
+}
+
+function renderVraag() {
+  beantwoord = false;
+  const v = vragen[huidigeVraag];
+  const n = huidigeVraag + 1;
+
+  document.getElementById('progress-label').textContent = `Vraag ${n} van ${vragen.length}`;
+  document.getElementById('progress-fill').style.width = `${((n-1)/vragen.length)*100}%`;
+  document.getElementById('q-topic').textContent = v.topic;
+  document.getElementById('q-text').textContent = v.tekst;
+
+  const fb = document.getElementById('q-feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const optiesEl = document.getElementById('q-options');
+  optiesEl.innerHTML = '';
+  v.opties.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => beantwoordVraag(i);
+    optiesEl.appendChild(btn);
+  });
+}
+
+function beantwoordVraag(gekozen) {
+  if (beantwoord) return;
+  beantwoord = true;
+  const v = vragen[huidigeVraag];
+  const goed = gekozen === v.correct;
+
+  antwoorden.push({ topic: v.topic, goed, gekozen, correct: v.correct });
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === v.correct) btn.classList.add('correct');
+    else if (i === gekozen && !goed) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('q-feedback');
+  fb.className = 'feedback show ' + (goed ? 'ok' : 'nok');
+  fb.innerHTML = (goed ? '✓ Correct! ' : '✗ Helaas. ') + v.uitleg;
+
+  const isLaatste = huidigeVraag === vragen.length - 1;
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.style.display = 'block';
+  nextBtn.textContent = isLaatste ? 'Bekijk resultaat →' : 'Volgende vraag →';
+}
+
+function nextQuestion() {
+  huidigeVraag++;
+  if (huidigeVraag >= vragen.length) {
+    toonResultaat();
+  } else {
+    renderVraag();
+  }
+}
+
+function toonResultaat() {
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'block';
+
+  const score = antwoorden.filter(a => a.goed).length;
+  const totaal = vragen.length;
+  const wrongTopics = antwoorden.filter(a => !a.goed).map(a => a.topic);
+
+  // Sla op in localStorage
+  localStorage.setItem('fransTestResults', JSON.stringify({
+    score,
+    totaal,
+    wrongTopics,
+    results: antwoorden,
+    datum: new Date().toISOString()
+  }));
+
+  // Score ring
+  const ring = document.getElementById('score-ring');
+  ring.textContent = `${score}/${totaal}`;
+  if (score >= 8) ring.className = 'score-ring high';
+  else if (score >= 5) ring.className = 'score-ring mid';
+  else ring.className = 'score-ring low';
+
+  // Titel + sub
+  const titleEl = document.getElementById('result-title');
+  const subEl = document.getElementById('result-sub');
+  if (score === 10) {
+    titleEl.textContent = 'Perfecte score! 🎉';
+    subEl.textContent = 'Alle B2-structuren zitten er goed in. Tijd om naar C1 te kijken!';
+  } else if (score >= 8) {
+    titleEl.textContent = 'Uitstekend! B2-niveau in zicht.';
+    subEl.textContent = `Je hebt ${score} van de 10 goed. Nog een paar puntjes bijschaven en je bent er.`;
+  } else if (score >= 5) {
+    titleEl.textContent = 'Goed op weg richting B2.';
+    subEl.textContent = `${score}/10 — je kent de basis, maar een aantal B2-structuren hebben nog aandacht nodig.`;
+  } else {
+    titleEl.textContent = 'B1-niveau — B2 is de volgende stap.';
+    subEl.textContent = `${score}/10 — geen zorgen, dit is precies het begin. Met de juiste oefeningen kom je er snel.`;
+  }
+
+  // Breakdown
+  const list = document.getElementById('breakdown-list');
+  list.innerHTML = antwoorden.map(a => `
+    <div class="breakdown-row">
+      <span class="bd-icon">${a.goed ? '✅' : '❌'}</span>
+      <span class="bd-topic">${a.topic}</span>
+      <span class="bd-answer">${a.goed ? 'goed' : `jouw antwoord: "${vragen[antwoorden.indexOf(a)].opties[a.gekozen]}"`}</span>
+    </div>
+  `).join('');
+
+  // Prompt
+  const promptText = genereerPrompt(score, wrongTopics);
+  document.getElementById('prompt-text').textContent = promptText;
+}
+
+function genereerPrompt(score, wrongTopics) {
+  if (wrongTopics.length === 0) {
+    return `Ik heb zojuist een Frans B1→B2 niveautest gemaakt en alle 10 vragen goed beantwoord. Ik wil verder groeien richting C1. Kun je me 5 uitdagende C1-oefeningen geven die verder gaan dan B2? Denk aan complexe subjonctif-constructies, stijlverschillen, of nuances die C1 van B2 onderscheiden.`;
+  }
+
+  const topicsStr = wrongTopics.join(', ');
+
+  if (score <= 4) {
+    return `Ik leer Frans en heb net een B1→B2 niveautest gemaakt. Ik had moeite met de volgende grammaticaonderwerpen: ${topicsStr}.
+
+Mijn score was ${score}/10. Wil je me voor elk van deze onderwerpen:
+1. Een korte, heldere uitleg in het Nederlands (max 3 zinnen)
+2. Twee voorbeeldzinnen in het Frans met vertaling
+3. Een makkelijke ezelsbruggetje of geheugensteun
+4. Één oefenzin waar ik zelf het goede antwoord op kan geven
+
+Begin met het onderwerp waar ik het meest mee worstelde.`;
+  }
+
+  return `Ik leer Frans op B2-niveau en heb een niveautest gemaakt (score: ${score}/10). De onderwerpen waarbij ik fouten maakte zijn: ${topicsStr}.
+
+Kun je per onderwerp:
+1. Uitleggen waar ik waarschijnlijk de fout in inga (in het Nederlands)
+2. De grammaticaregel kort samenvatten
+3. Drie gevarieerde oefenzinnen geven met daarna de antwoorden
+
+Sluit af met een B2-schrijfopdracht van 5-6 zinnen waarbij ik minstens twee van deze structuren moet gebruiken.`;
+}
+
+function copyPrompt(btn) {
+  const text = document.getElementById('prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Gekopieerd!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Kopieer prompt';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function restartQuiz() {
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('intro-section').style.display = 'block';
+}
+</script>
+</body>
+</html>

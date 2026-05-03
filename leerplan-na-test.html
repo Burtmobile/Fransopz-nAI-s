@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leerplan · Frans op z'n AI's</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --ink: #1a1a2e;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-pale: #fdf6e3;
+    --blue-fr: #003189;
+    --red-fr: #c0392b;
+    --muted: #7a7a8a;
+    --card: #ffffff;
+    --border: #e8e4dc;
+    --correct: #2e7d52;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+  }
+  nav {
+    background: var(--blue-fr);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  nav a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: #fff; }
+  nav .sep { color: rgba(255,255,255,0.3); }
+  nav .site-title {
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--blue-fr) 0%, #001a5c 100%);
+    color: white;
+    padding: 3rem 1.5rem 2.5rem;
+    text-align: center;
+  }
+  .hero-flag { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .hero p {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* LOCKED */
+  .locked-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-align: center;
+  }
+  .locked-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .locked-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+  .locked-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.5rem; }
+  .btn-go {
+    display: inline-block;
+    background: var(--blue-fr);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+  }
+  .btn-go:hover { background: #001a5c; }
+
+  /* SCORE BANNER */
+  .score-banner {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .score-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: 3px solid;
+    flex-shrink: 0;
+  }
+  .score-badge.high { border-color: var(--correct); color: var(--correct); background: #e8f5ee; }
+  .score-badge.mid  { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+  .score-badge.low  { border-color: var(--red-fr); color: var(--red-fr); background: #fdecea; }
+  .score-info { flex: 1; }
+  .score-info h3 { font-family: 'Fraunces', serif; font-size: 1rem; margin-bottom: 0.2rem; }
+  .score-info p { font-size: 0.78rem; color: var(--muted); }
+  .score-date { font-size: 0.72rem; color: var(--muted); }
+
+  /* PLAN INTRO */
+  .plan-intro {
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* TOPIC CARD */
+  .topic-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .topic-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .topic-header:hover { background: var(--cream); }
+  .topic-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .topic-name {
+    flex: 1;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+  }
+  .topic-status {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .topic-status.fout { background: #fdecea; color: var(--red-fr); border: 1px solid #f5c6c2; }
+  .topic-status.goed { background: #e8f5ee; color: var(--correct); border: 1px solid #b8dcca; }
+  .topic-chevron {
+    color: var(--muted);
+    font-size: 0.8rem;
+    transition: transform 0.25s;
+  }
+  .topic-card.open .topic-chevron { transform: rotate(90deg); }
+  .topic-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .topic-card.open .topic-body { display: block; }
+
+  .topic-uitleg {
+    font-size: 0.83rem;
+    line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    padding-top: 0.9rem;
+  }
+  .topic-uitleg strong { color: var(--blue-fr); }
+
+  .prompt-label {
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+  .prompt-box {
+    background: var(--gold-pale);
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    padding: 0.9rem;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+  }
+  .btn-copy-small {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-copy-small:hover { background: var(--gold-light); }
+  .btn-copy-small.copied { background: var(--correct); color: white; }
+
+  /* ALLE GOED */
+  .all-good {
+    background: #e8f5ee;
+    border: 1px solid #b8dcca;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .all-good .ag-icon { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
+  .all-good h2 { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--correct); margin-bottom: 0.5rem; }
+  .all-good p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* ACTIONS */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .btn-action {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-action.primary { background: var(--blue-fr); color: white; }
+  .btn-action.primary:hover { background: #001a5c; }
+  .btn-action.secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-action.secondary:hover { border-color: var(--ink); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="site-title">Frans op z'n AI's</a>
+  <span class="sep">›</span>
+  <a href="#">Leerplan</a>
+</nav>
+
+<div class="hero">
+  <span class="hero-flag">📋</span>
+  <h1>Jouw leerplan</h1>
+  <p>Op basis van je testresultaten — per onderwerp een uitleg en een prompt om direct met Claude te oefenen.</p>
+</div>
+
+<main id="main-content">
+  <!-- Dynamisch gevuld door JS -->
+</main>
+
+<script>
+const topicInfo = {
+  "Subjonctif": {
+    icon: "🔮",
+    uitleg: `De <strong>subjonctif</strong> is een werkwoordsvorm die je gebruikt na bepaalde uitdrukkingen van wil, twijfel, gevoel of noodzaak.\n\nVormgeving: stam van de ils-vorm + -e, -es, -e, -ions, -iez, -ent.\nVoorbeelden: que je parle, que tu finisses, qu'il soit (onregelmatig).\n\nGebruik het na: vouloir que, il faut que, bien que, pour que, à moins que.`,
+    prompt: `Ik leer Frans op B2-niveau en heb moeite met de subjonctif. Kun je me helpen met:\n1. Een heldere uitleg van wanneer je de subjonctif gebruikt (de 5 belangrijkste triggers)\n2. De vorming stap voor stap uitgelegd\n3. Vijf oefenzinnen waarbij ik de juiste werkwoordsvorm moet kiezen (indicatif of subjonctif)\n4. De antwoorden daarna\n\nSluit af met een tip om de subjonctif te onthouden.`
+  },
+  "Après avoir/être": {
+    icon: "⏱️",
+    uitleg: `<strong>Après avoir/être + voltooid deelwoord</strong> gebruik je om aan te geven dat één actie volledig klaar was vóór een andere begon.\n\nMet avoir-werkwoorden: après avoir + deelwoord (après avoir mangé)\nMet être-werkwoorden: après être + deelwoord (après être parti(e))\n\nLet op: het subject van beide zinnen moet hetzelfde zijn!`,
+    prompt: `Ik oefen Frans op B2-niveau en maak fouten met 'après avoir/être + infinitif passé'. Help me met:\n1. Uitleg van het verschil tussen avoir- en être-werkwoorden in deze constructie\n2. Vijf foutieve zinnen die ik moet corrigeren\n3. Een tabel met de meest gebruikte être-werkwoorden\n4. Drie creatieve oefenzinnen die ik zelf moet afmaken\n\nGeef daarna de antwoorden met uitleg.`
+  },
+  "Passief": {
+    icon: "🔄",
+    uitleg: `De <strong>passieve zin</strong> in het Frans: être + voltooid deelwoord + par + agent.\n\nHet deelwoord past zich aan het onderwerp aan (getal en geslacht).\nActief: Le chef prépare le repas.\nPassief: Le repas est préparé par le chef.\n\nIn alle tijden: était préparé (imparfait), a été préparé (passé composé), sera préparé (futur).`,
+    prompt: `Ik leer Frans op B2-niveau en wil de passieve zin beter begrijpen. Kun je:\n1. De basisstructuur uitleggen\n2. Voorbeelden geven in 4 verschillende tijden (présent, imparfait, passé composé, futur)\n3. Me 5 actieve zinnen geven die ik naar passief moet omzetten\n4. Uitleggen wanneer Fransen de passief gebruiken vs. het onpersoonlijk 'on'\n\nGeef de antwoorden na de oefeningen.`
+  },
+  "Dont": {
+    icon: "🔗",
+    uitleg: `<strong>Dont</strong> is een relatief voornaamwoord dat "de + iets" vervangt.\n\nGebruik dont als het werkwoord of de uitdrukking 'de' vereist:\n- avoir besoin de → C'est le livre dont j'ai besoin\n- parler de → La personne dont je parlais\n- être fier de → C'est un résultat dont je suis fier\n\nVergelijk: qui (subject), que (object), où (plaats/tijd), dont (de + iets).`,
+    prompt: `Ik leer Frans op B2-niveau en verwar dont met que en qui. Help me met:\n1. Een overzicht van de 4 relatieve voornaamwoorden (qui, que, dont, où) met gebruiksregel\n2. Vijf zinnen waarbij ik het juiste voornaamwoord moet kiezen\n3. Uitleg van werkwoorden die altijd 'de' vereisen (en dus dont gebruiken)\n4. Twee zinnen waarbij ik een relatieve bijzin moet toevoegen met dont\n\nGeef de antwoorden daarna.`
+  },
+  "Imparfait vs. Passé Composé": {
+    icon: "⏳",
+    uitleg: `<strong>Imparfait</strong> gebruik je voor:\n- Gewoontes in het verleden (je lisais souvent)\n- Beschrijvingen (il faisait beau)\n- Achtergrond bij een verhaal\n\n<strong>Passé composé</strong> gebruik je voor:\n- Afgeronde handelingen (j'ai lu ce livre)\n- Opeenvolgende acties\n- Acties die de achtergrond onderbreken`,
+    prompt: `Ik oefen Frans en maak fouten met het verschil tussen imparfait en passé composé. Kun je:\n1. De vuistregel uitleggen in drie korte punten\n2. Signaalwoorden geven die elk van beide aanduiden\n3. Een korte tekst (8 zinnen) geven in het Nederlands die ik naar het Frans moet vertalen, waarbij ik zelf de tijdsvorm moet kiezen\n4. Daarna de modeloplossing geven met uitleg\n\nHoud het praktisch en B2-waardig.`
+  },
+  "Bien que": {
+    icon: "↔️",
+    uitleg: `<strong>Bien que</strong> betekent "hoewel/ook al" en vereist altijd de subjonctif.\n\nBien qu'il soit fatigué, il travaille. (niet: est)\n\nAndere concessieve voegwoorden met subjonctif:\n- quoique (hoewel)\n- à moins que (tenzij)\n- pour que (opdat)\n- avant que (voordat)`,
+    prompt: `Ik leer Frans op B2-niveau. Ik vergeet dat 'bien que' de subjonctif vereist. Help me met:\n1. Een lijst van de 6 meest gebruikte voegwoorden + subjonctif\n2. Een ezelsbruggetje om ze te onthouden\n3. Vijf zinnen waarbij de werkwoordsvorm ontbreekt — ik moet invullen of het subjonctif of indicatif is\n4. Twee zinnen schrijven waarbij ik 'bien que' zelf moet verwerken\n\nGeef daarna de antwoorden.`
+  },
+  "Si-zinnen": {
+    icon: "🔀",
+    uitleg: `<strong>Si-zinnen (hypothetisch verleden)</strong>:\nSi + plus-que-parfait → conditionnel passé\n\nSi j'avais su → je serais venu.\n\nDe drie types:\n- Mogelijk: Si tu viens → je t'accompagne (présent + présent/futur)\n- Onwaarschijnlijk: Si tu venais → je t'accompagnerais (imparfait + conditionnel)\n- Onmogelijk verleden: Si tu étais venu → je t'aurais accompagné (PQP + cond. passé)\n\nNooit: si + conditionnel!`,
+    prompt: `Ik leer Frans op B2-niveau en maak fouten met si-zinnen, vooral de hypothetische variant in het verleden. Kun je:\n1. Een duidelijk schema geven van de drie soorten si-zinnen (mogelijkheid, onwaarschijnlijk, onmogelijk)\n2. Uitleggen waarom je nooit conditionnel na 'si' gebruikt\n3. Vijf onvolledige si-zinnen geven die ik moet afmaken met de juiste werkwoordsvorm\n4. Twee realistische situaties beschrijven (bijv. 'je bent een trein misgelopen') die ik in het Frans moet schrijven als si-zin\n\nGeef de antwoorden daarna.`
+  },
+  "Gérondif": {
+    icon: "🔧",
+    uitleg: `De <strong>gérondif</strong> = en + tegenwoordig deelwoord (présent participe).\n\nVorming: nous-stam + -ant.\nnous parlons → parlant → en parlant\nnous finissons → finissant → en finissant\n\nGebruik: gelijktijdige actie, manier, voorwaarde.\nIl a appris le français en écoutant des podcasts.\nElle téléphone en conduisant.`,
+    prompt: `Ik leer Frans op B2-niveau en wil de gérondif beter gebruiken. Help me met:\n1. De vorming stap voor stap (inclusief onregelmatige vormen: être, avoir, savoir)\n2. De drie gebruikscontexten met voorbeelden\n3. Het verschil tussen gérondif en deelwoord als bijvoeglijk naamwoord\n4. Vijf zinnen waarbij ik een gérondif moet vormen van het gegeven werkwoord\n5. Een vrije schrijfoefening: beschrijf je ochtendrutine in 4 zinnen met minstens 2 gérondifs`
+  },
+  "Nominalisering": {
+    icon: "📝",
+    uitleg: `<strong>Nominalisering</strong> = een werkwoord of bijzin omzetten naar een zelfstandig naamwoord.\n\ndécider → la décision\npartir → le départ\narriver → l'arrivée\n\nStructuur: bezittelijk vnw + zelfstandig naamwoord + de + infinitief\nSa décision de partir / Son désir d'apprendre\n\nB2-tip: nominalisering maakt je schrijfstijl formeler en gevarieerder.`,
+    prompt: `Ik oefen Frans op B2-niveau en wil nominalisering vaker en correcter gebruiken in formeel schrijven. Kun je:\n1. Een lijst geven van 10 veelgebruikte werkwoorden met hun nominalisering\n2. Vijf zinnen met een werkwoord-constructie die ik moet omzetten naar nominalisering\n3. Uitleggen wanneer nominalisering typisch gebruikt wordt (stijl, context)\n4. Een paragraaf uit een krant of brief geven waarbij ik 3 nominaliseringen moet onderstrepen\n\nGeef de antwoorden daarna.`
+  },
+  "Au cas où": {
+    icon: "⚠️",
+    uitleg: `<strong>Au cas où</strong> = voor het geval dat, mocht het zo zijn dat.\n\nGebruik: au cas où + conditionnel (niet indicatif!)\nAu cas où il pleuvrait, prenez un parapluie.\nAu cas où tu aurais besoin d'aide, appelle-moi.\n\nVerschil met 'si':\n- Si = gewone voorwaarde (+ indicatif)\n- Au cas où = voorzorgsmaatregel, onzekerder (+ conditionnel)`,
+    prompt: `Ik leer Frans op B2-niveau en wil 'au cas où' correct leren gebruiken. Help me met:\n1. Het verschil tussen 'si' en 'au cas où' in twee zinnen uitleggen\n2. Vijf situaties geven (in het Nederlands) die ik moet omzetten naar een zin met 'au cas où' + conditionnel\n3. Drie veelgemaakte fouten met 'au cas où' noemen en uitleggen waarom ze fout zijn\n4. Een kort dialoogje schrijven waarbij 'au cas où' minstens twee keer voorkomt, dat ik daarna als model kan gebruiken`
+  }
+};
+
+function formatDatum(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function renderLeerplan() {
+  const raw = localStorage.getItem('fransTestResults');
+  const main = document.getElementById('main-content');
+
+  if (!raw) {
+    main.innerHTML = `
+      <div class="locked-card">
+        <span class="locked-icon">🔒</span>
+        <h2>Nog geen testresultaten</h2>
+        <p>Maak eerst de niveautest om een persoonlijk leerplan te genereren. Je resultaten worden automatisch opgeslagen.</p>
+        <a href="franstest-b1-b2.html" class="btn-go">→ Naar de niveautest</a>
+      </div>`;
+    return;
+  }
+
+  const data = JSON.parse(raw);
+  const { score, totaal, wrongTopics, results, datum } = data;
+  const allTopics = (results || []).map(r => r.topic);
+
+  // Score banner
+  let scoreClass = score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low';
+  let scoreLabel = score >= 8 ? 'Uitstekend!' : score >= 5 ? 'Goed op weg' : 'Bijwerken';
+  let html = `
+    <div class="score-banner">
+      <div class="score-badge ${scoreClass}">${score}/${totaal}</div>
+      <div class="score-info">
+        <h3>${scoreLabel}</h3>
+        <p>${wrongTopics.length === 0 ? 'Alle onderwerpen correct!' : `${wrongTopics.length} onderwerp${wrongTopics.length > 1 ? 'en' : ''} om aan te werken`}</p>
+      </div>
+      <span class="score-date">${formatDatum(datum)}</span>
+    </div>`;
+
+  if (wrongTopics.length === 0) {
+    html += `
+      <div class="all-good">
+        <span class="ag-icon">🏆</span>
+        <h2>Alles goed!</h2>
+        <p>Je hebt alle B2-onderwerpen correct beantwoord. Gebruik de prompts hieronder om je kennis nog verder te verdiepen, of ga door naar C1.</p>
+      </div>`;
+  } else {
+    html += `<p class="plan-intro">Hieronder vind je per fout-beantwoord onderwerp een uitleg en een kant-en-klare prompt om direct met Claude te oefenen. Klik op een onderwerp om het open te klappen.</p>`;
+  }
+
+  // Toon eerst foute onderwerpen, dan goede
+  const sortedTopics = [
+    ...(wrongTopics || []),
+    ...(allTopics.filter(t => !wrongTopics.includes(t)))
+  ];
+
+  sortedTopics.forEach((topic, idx) => {
+    const info = topicInfo[topic];
+    if (!info) return;
+    const isWrong = wrongTopics.includes(topic);
+    html += `
+      <div class="topic-card" id="card-${idx}">
+        <div class="topic-header" onclick="toggleCard('card-${idx}')">
+          <span class="topic-icon">${info.icon}</span>
+          <span class="topic-name">${topic}</span>
+          <span class="topic-status ${isWrong ? 'fout' : 'goed'}">${isWrong ? 'te oefenen' : 'goed'}</span>
+          <span class="topic-chevron">›</span>
+        </div>
+        <div class="topic-body">
+          <div class="topic-uitleg">${info.uitleg.replace(/\n/g, '<br>')}</div>
+          <div class="prompt-label">Claude-prompt</div>
+          <div class="prompt-box">${info.prompt}</div>
+          <button class="btn-copy-small" onclick="copyTopicPrompt(this, '${idx}')">Kopieer prompt</button>
+        </div>
+      </div>`;
+  });
+
+  html += `
+    <div class="actions">
+      <a href="dagelijks-oefenen.html" class="btn-action primary">🗓 Start dagelijkse oefening</a>
+      <a href="hertest.html" class="btn-action primary" style="background:var(--correct)">🔁 Doe de hertest</a>
+      <a href="franstest-b1-b2.html" class="btn-action secondary">↩ Test opnieuw maken</a>
+    </div>`;
+
+  main.innerHTML = html;
+
+  // Auto-open eerste foute kaart
+  if (wrongTopics.length > 0) {
+    const firstCard = document.getElementById('card-0');
+    if (firstCard) firstCard.classList.add('open');
+  }
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+const promptTexts = Object.values(topicInfo).map(i => i.prompt);
+
+function copyTopicPrompt(btn, idx) {
+  const sortedTopics = getSortedTopics();
+  const topic = sortedTopics[parseInt(idx)];
+  const info = topicInfo[topic];
+  if (!info) return;
+
+  navigator.clipboard.writeText(info.prompt).then(() => {
+    btn.textContent = '✓ Gekopieerd!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Kopieer prompt';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function getSortedTopics() {
+  const raw = localStorage.getItem('fransTestResults');
+  if (!raw) return [];
+  const data = JSON.parse(raw);
+  const { wrongTopics, results } = data;
+  const allTopics = (results || []).map(r => r.topic);
+  return [
+    ...(wrongTopics || []),
+    ...(allTopics.filter(t => !wrongTopics.includes(t)))
+  ];
+}
+
+renderLeerplan();
+</script>
+</body>
+</html>

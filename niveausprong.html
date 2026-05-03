@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niveausprong-check — Frans op z'n AI's</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;1,300;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink: #1a1814;
+    --gold: #c8952a;
+    --gold-light: #e8c87a;
+    --gold-pale: #fdf8ef;
+    --blue-fr: #0a2e6e;
+    --red-fr: #c1121f;
+    --muted: #8a8070;
+    --card: #ffffff;
+    --border: #e0d8c8;
+    --correct: #1a6b3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--ink); font-family: 'DM Mono', monospace; min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 15% 20%, rgba(200,149,42,0.07) 0%, transparent 50%), radial-gradient(circle at 85% 75%, rgba(10,46,110,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; padding: 48px 24px 100px; }
+
+  .site-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 56px; }
+  .logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--gold); }
+  .flag { display: flex; gap: 2px; height: 16px; }
+  .flag div { width: 8px; border-radius: 1px; }
+  .flag .b { background: var(--blue-fr); }
+  .flag .w { background: #fff; border: 1px solid #ddd; }
+  .flag .r { background: var(--red-fr); }
+
+  .terug { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; margin-bottom: 40px; transition: color 0.2s; }
+  .terug:hover { color: var(--ink); }
+
+  .eyebrow { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--gold-light); max-width: 60px; }
+
+  h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 6vw, 3rem); font-weight: 300; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 12px; }
+  h1 em { font-style: italic; font-weight: 600; color: var(--gold); }
+
+  .intro-sub { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 32px; max-width: 540px; }
+
+  /* Zwakke punten tonen */
+  .focuspunten {
+    background: var(--ink); color: var(--cream); border-radius: 6px;
+    padding: 18px 24px; margin-bottom: 32px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .fp-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .fp-tekst { font-size: 12px; line-height: 1.8; color: #c8c0a8; }
+  .fp-tekst strong { color: var(--gold-light); font-weight: 500; display: block; margin-bottom: 8px; }
+  .fp-lijst { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fp-tag { font-size: 10px; background: rgba(200,149,42,0.2); border: 1px solid rgba(200,149,42,0.3); color: var(--gold-light); padding: 4px 10px; border-radius: 20px; }
+
+  /* Pills */
+  .pill-rij { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .pill { font-size: 10px; letter-spacing: 0.06em; background: white; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 20px; }
+
+  .btn-start {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--ink); color: var(--cream);
+    font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 0.1em;
+    padding: 14px 28px; border-radius: 2px; border: none; cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase; position: relative; overflow: hidden;
+  }
+  .btn-start::after { content: ''; position: absolute; inset: 0; background: var(--gold); transform: translateX(-100%); transition: transform 0.3s ease; z-index: 0; }
+  .btn-start:hover::after { transform: translateX(0); }
+  .btn-start:hover { color: var(--ink); }
+  .btn-start span { position: relative; z-index: 1; }
+
+  /* Voortgangsbalk */
+  #quiz-screen { display: none; }
+  .progress-bar-wrap { margin-bottom: 28px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { height: 3px; background: var(--border); border-radius: 2px; }
+  .progress-fill { height: 3px; background: var(--gold); border-radius: 2px; transition: width 0.4s ease; }
+
+  /* Vraag kaart */
+  .q-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 28px; box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    margin-bottom: 20px; animation: fadeUp 0.3s ease both;
+  }
+  .q-topic-badge {
+    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 2px; font-weight: 500;
+    display: inline-block; margin-bottom: 16px;
+    background: var(--gold-pale); color: #7a5010; border: 1px solid #e8d89a;
+  }
+  .q-text { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 300; line-height: 1.5; color: var(--ink); margin-bottom: 8px; }
+  .q-instruction { font-size: 11.5px; color: var(--muted); margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
+    background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px;
+    cursor: pointer; font-family: 'DM Mono', monospace; font-size: 13px;
+    text-align: left; transition: all 0.15s; color: var(--ink);
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-pale); }
+  .opt-btn.correct { background: #e8f4ec; border-color: var(--correct); color: var(--correct); }
+  .opt-btn.wrong { background: #fce8ea; border-color: var(--red-fr); color: var(--red-fr); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-letter { font-weight: 500; flex-shrink: 0; opacity: 0.5; }
+  .feedback-box { margin-top: 16px; font-size: 12.5px; line-height: 1.75; padding: 14px 16px; border-radius: 4px; display: none; }
+  .feedback-box.correct { background: #e8f4ec; color: #1a5c34; border: 1px solid #b8dfc8; display: block; }
+  .feedback-box.wrong { background: #fce8ea; color: #8a1220; border: 1px solid #f0b8be; display: block; }
+
+  .btn-next {
+    display: none; width: 100%;
+    background: var(--ink); color: var(--cream);
+    font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+    padding: 14px; border-radius: 2px; border: none; cursor: pointer;
+    text-transform: uppercase; transition: all 0.2s;
+  }
+  .btn-next:hover { background: var(--gold); color: var(--ink); }
+  .btn-next.visible { display: block; animation: fadeUp 0.3s ease both; }
+
+  /* Resultaat */
+  #result-screen { display: none; }
+
+  .result-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 36px 28px; box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    text-align: center; animation: fadeUp 0.4s ease both;
+  }
+
+  .sprong-badge {
+    display: inline-block; padding: 16px 32px; border-radius: 8px;
+    font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700;
+    margin: 20px 0 16px; letter-spacing: -0.02em;
+  }
+  .sprong-ja { background: #e8f4ec; color: var(--correct); }
+  .sprong-bijna { background: var(--gold-pale); color: #7a5010; border: 1px solid #e8d89a; }
+  .sprong-nee { background: #fce8ea; color: var(--red-fr); }
+
+  .score-rij { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; }
+  .score-bol {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; font-family: 'Fraunces', serif;
+  }
+  .bol-goed { background: #e8f4ec; color: var(--correct); border: 2px solid var(--correct); }
+  .bol-fout { background: #fce8ea; color: var(--red-fr); border: 2px solid #f0b8be; }
+
+  .result-tekst { font-size: 13px; color: var(--muted); line-height: 1.8; max-width: 460px; margin: 0 auto 28px; }
+
+  .resultaat-onderwerpen {
+    background: var(--cream); border: 1px solid var(--border); border-radius: 6px;
+    padding: 16px 20px; margin: 16px 0 24px; text-align: left;
+  }
+  .resultaat-rij {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+  }
+  .resultaat-rij:last-child { border-bottom: none; }
+  .resultaat-goed { color: var(--correct); font-size: 14px; }
+  .resultaat-fout { color: var(--red-fr); font-size: 14px; }
+
+  .result-knoppen { display: flex; flex-direction: column; gap: 10px; }
+  .btn-actie {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px; border-radius: 2px; font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase;
+    text-decoration: none; border: none; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-actie.primair { background: var(--ink); color: var(--cream); }
+  .btn-actie.primair:hover { background: var(--gold); color: var(--ink); }
+  .btn-actie.secundair { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+  .btn-actie.secundair:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Geen test */
+  .geen-test { background: var(--card); border: 1.5px dashed var(--border); border-radius: 8px; padding: 40px 28px; text-align: center; }
+  .geen-test-icon { font-size: 32px; margin-bottom: 16px; }
+  .geen-test h2 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; font-style: italic; color: var(--muted); margin-bottom: 10px; }
+  .geen-test p { font-size: 12.5px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .btn-test { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--cream); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.09em; padding: 11px 22px; border-radius: 2px; text-decoration: none; text-transform: uppercase; }
+
+  /* Geen zwakke punten */
+  .alles-goed { background: #e8f4ec; border: 1px solid #b8dfc8; border-radius: 8px; padding: 32px 28px; text-align: center; }
+  .alles-goed-icon { font-size: 40px; margin-bottom: 14px; }
+  .alles-goed h2 { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 600; color: var(--correct); margin-bottom: 10px; }
+  .alles-goed p { font-size: 13px; color: #1a5c34; line-height: 1.7; margin-bottom: 20px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="site-header">
+    <a href="index.html" class="logo">Frans op z'n <span>AI's</span></a>
+    <div class="flag"><div class="b"></div><div class="w"></div><div class="r"></div></div>
+  </div>
+
+  <a href="index.html" class="terug">← Terug naar overzicht</a>
+
+  <!-- Geen test -->
+  <div id="geen-test-blok" style="display:none">
+    <div class="geen-test">
+      <div class="geen-test-icon">🔒</div>
+      <h2>Doe eerst de niveautest</h2>
+      <p>De niveausprong-check richt zich op jouw zwakke punten.<br>Doe eerst de test zodat we weten waar jij op gefocust moet worden.</p>
+      <a href="franstest-b1-b2.html" class="btn-test"><span>Naar de niveautest</span> →</a>
+    </div>
+  </div>
+
+  <!-- Alles al goed -->
+  <div id="alles-goed-blok" style="display:none">
+    <div class="alles-goed">
+      <div class="alles-goed-icon">🏆</div>
+      <h2>Je had alles goed!</h2>
+      <p>Uit de niveautest kwamen geen zwakke punten naar voren.<br>Je beheerst alle behandelde B1/B2-onderwerpen al goed.</p>
+      <a href="hertest.html" class="btn-test" style="background:var(--correct)"><span>Doe de hertest voor bevestiging</span> →</a>
+    </div>
+  </div>
+
+  <!-- Intro screen -->
+  <div id="intro-screen" style="display:none">
+    <div class="eyebrow">Niveausprong-check</div>
+    <h1>Klaar voor<br><em>B2?</em></h1>
+    <p class="intro-sub">
+      5 gerichte vragen — alleen over de onderwerpen die jij eerder fout had.
+      Haal je 4 of 5, dan ben je er klaar voor.
+    </p>
+
+    <div class="focuspunten">
+      <div class="fp-icon">⚡</div>
+      <div class="fp-tekst">
+        <strong>De check richt zich op jouw zwakke punten:</strong>
+        <div class="fp-lijst" id="fp-lijst"></div>
+      </div>
+    </div>
+
+    <div class="pill-rij">
+      <span class="pill">⚡ 5 gerichte vragen</span>
+      <span class="pill">⏱ 2 minuten</span>
+      <span class="pill">🎯 Alleen jouw zwakke punten</span>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">
+      <span>Check starten</span>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- Quiz screen -->
+  <div id="quiz-screen">
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <span id="q-counter">Vraag 1 van 5</span>
+        <span id="q-score-live">0 goed</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:20%"></div>
+      </div>
+    </div>
+    <div id="q-container"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Volgende vraag →</button>
+  </div>
+
+  <!-- Resultaat screen -->
+  <div id="result-screen"></div>
+
+</div>
+<script>
+// Alle mogelijke vragen per onderwerp
+const vragenBank = {
+  'Subjonctif na vouloir que': [
+    {
+      text: "« Je préfère que tu ___ la vérité. »",
+      instruction: "Kies de juiste subjonctif-vorm",
+      options: ["dis", "diras", "as dit", "disais"],
+      correct: 0,
+      feedback: {
+        correct: "✓ Juist! Na 'préférer que' gebruik je de subjonctif. 'Dis' is de subjonctif van 'dire'.",
+        wrong: "Na 'préférer que' komt de subjonctif. Het antwoord is 'dis' — de subjonctif van 'dire'."
+      }
+    }
+  ],
+  'Après avoir/être': [
+    {
+      text: "« ___ avoir fini ses devoirs, il est sorti jouer. »",
+      instruction: "Welk voorzetsel past?",
+      options: ["Avant d'", "Après", "En", "Pour"],
+      correct: 1,
+      feedback: {
+        correct: "✓ Correct! Après avoir + infinitif passé drukt uit dat iets eerder klaar was.",
+        wrong: "Het antwoord is 'Après'. Structuur: Après avoir + infinitif passé."
+      }
+    }
+  ],
+  'Passieve zin': [
+    {
+      text: "Welke passieve zin is correct? ('Les enfants mangent les gâteaux.')",
+      instruction: "Zet om naar passief in de présent",
+      options: [
+        "Les gâteaux sont mangés par les enfants.",
+        "Les gâteaux mangent par les enfants.",
+        "Les gâteaux ont mangé les enfants.",
+        "Les gâteaux étaient mangé par les enfants."
+      ],
+      correct: 0,
+      feedback: {
+        correct: "✓ Bravo! Présent passief = être (présent) + voltooid deelwoord + par.",
+        wrong: "De passieve vorm in de présent: être + voltooid deelwoord (mangés) + par. Antwoord: 'Les gâteaux sont mangés par les enfants.'"
+      }
+    }
+  ],
+  'Relatief voornaamwoord dont': [
+    {
+      text: "« Voici le livre ___ j'ai besoin. »",
+      instruction: "Welk relatief voornaamwoord past?",
+      options: ["que", "qui", "dont", "où"],
+      correct: 2,
+      feedback: {
+        correct: "✓ Perfect! 'Avoir besoin de' → 'dont'. Dont vervangt altijd 'de + iets'.",
+        wrong: "Het antwoord is 'dont'. Het werkwoord 'avoir besoin de' vraagt 'de', dus gebruik je 'dont' in de relatieve bijzin."
+      }
+    }
+  ],
+  'Imparfait vs passé composé': [
+    {
+      text: "« Pendant que je ___ la vaisselle, quelqu'un a frappé à la porte. »",
+      instruction: "Welke tijd voor de achtergrondhandeling?",
+      options: ["faisais", "ai fait", "ferai", "fasse"],
+      correct: 0,
+      feedback: {
+        correct: "✓ Juist! De imparfait ('faisais') beschrijft de achtergrond; de passé composé ('a frappé') de plotselinge actie.",
+        wrong: "De imparfait ('faisais') geeft de doorlopende achtergrondhandeling aan. De passé composé beschrijft wat er tussenin gebeurde."
+      }
+    }
+  ],
+  'Bien que + subjonctif': [
+    {
+      text: "« Bien qu'il ___ jeune, il est très sage. »",
+      instruction: "Subjonctif of indicatief na 'bien que'?",
+      options: ["est", "sera", "soit", "était"],
+      correct: 2,
+      feedback: {
+        correct: "✓ Uitstekend! 'Bien que' vereist altijd de subjonctif. 'Soit' is de subjonctif van 'être'.",
+        wrong: "Na 'bien que' (hoewel) gebruik je altijd de subjonctif. Het antwoord is 'soit'."
+      }
+    }
+  ],
+  'Si-zin hypothetisch verleden': [
+    {
+      text: "Kies de correcte zin:",
+      instruction: "Hypothetisch verleden — welke structuur klopt?",
+      options: [
+        "Si elle aurait étudié, elle aurait réussi.",
+        "Si elle avait étudié, elle aurait réussi.",
+        "Si elle a étudié, elle aura réussi.",
+        "Si elle étudiait, elle aurait réussi."
+      ],
+      correct: 1,
+      feedback: {
+        correct: "✓ Parfait! Hypothetisch verleden: si + plus-que-parfait → conditionnel passé. Nooit 'aurait' na 'si'!",
+        wrong: "De structuur is: si + plus-que-parfait (avait étudié) + conditionnel passé (aurait réussi). Nooit 'aurait' na 'si'!"
+      }
+    }
+  ],
+  'Gérondif': [
+    {
+      text: "« Il s'est amélioré ___ pratiquer chaque jour. »",
+      instruction: "Kies de juiste constructie",
+      options: ["pour", "en", "à", "de"],
+      correct: 1,
+      feedback: {
+        correct: "✓ Correct! 'En pratiquant' — de gérondif (en + -ant) drukt de manier of omstandigheid uit.",
+        wrong: "De gérondif = 'en' + tegenwoordig deelwoord (-ant). Hier: 'en pratiquant'. Antwoord: 'en'."
+      }
+    }
+  ],
+  'Nominalisering': [
+    {
+      text: "Welke zin gebruikt nominalisering?",
+      instruction: "Kies de meest formele, genominaliseerde versie",
+      options: [
+        "Il a décidé d'arrêter le projet.",
+        "La décision d'arrêter le projet a été prise.",
+        "Il voulait que le projet soit arrêté.",
+        "Le projet a été arrêté parce qu'il a décidé."
+      ],
+      correct: 1,
+      feedback: {
+        correct: "✓ Bravo! 'La décision d'arrêter' — het werkwoord 'décider' is genominaliseerd tot 'décision'. Typisch formeel Frans.",
+        wrong: "Nominalisering = werkwoord omzetten naar zelfstandig naamwoord. 'La décision d'arrêter' is de genominaliseerde versie van 'il a décidé d'arrêter'."
+      }
+    }
+  ],
+  'Au cas où': [
+    {
+      text: "« ___ il pleuve, prenons un parapluie. »",
+      instruction: "Welk voegwoord past (met subjonctif)?",
+      options: ["Parce que", "Pour que", "Au cas où", "En cas de"],
+      correct: 2,
+      feedback: {
+        correct: "✓ Excellent! 'Au cas où' (voor het geval dat) gevolgd door de conditionnel of subjonctif is typisch B2.",
+        wrong: "Het antwoord is 'Au cas où' (voor het geval dat). Dit B2-voegwoord wordt gevolgd door de conditionnel of subjonctif."
+      }
+    }
+  ]
+};
+
+const onderwerpLabels = {
+  'Subjonctif na vouloir que': 'Subjonctif (wil/emotie)',
+  'Après avoir/être': 'Après avoir/être',
+  'Passieve zin': 'Passieve zin',
+  'Relatief voornaamwoord dont': 'Dont / relatieve vnw.',
+  'Imparfait vs passé composé': 'Imparfait vs passé composé',
+  'Bien que + subjonctif': 'Bien que + subjonctif',
+  'Si-zin hypothetisch verleden': 'Si-zinnen (conditionnel)',
+  'Gérondif': 'Gérondif (en + -ant)',
+  'Nominalisering': 'Nominalisering',
+  'Au cas où': 'Au cas où / voegwoorden'
+};
+
+const stored = localStorage.getItem('fransTestResults');
+
+let quizVragen = [];
+let currentQ = 0;
+let score = 0;
+let results = [];
+
+if (!stored) {
+  document.getElementById('geen-test-blok').style.display = 'block';
+} else {
+  const data = JSON.parse(stored);
+  const zwakke = data.wrongTopics || [];
+
+  if (zwakke.length === 0) {
+    document.getElementById('alles-goed-blok').style.display = 'block';
+  } else {
+    document.getElementById('intro-screen').style.display = 'block';
+
+    // Focuspunten tonen
+    const lijst = document.getElementById('fp-lijst');
+    zwakke.forEach(t => {
+      lijst.innerHTML += `<span class="fp-tag">${onderwerpLabels[t] || t}</span>`;
+    });
+
+    // Selecteer 5 vragen uit de zwakke onderwerpen (met herhaling als er minder dan 5 zijn)
+    const beschikbaar = zwakke.filter(t => vragenBank[t]);
+    let i = 0;
+    while (quizVragen.length < 5 && beschikbaar.length > 0) {
+      const topic = beschikbaar[i % beschikbaar.length];
+      const vraag = vragenBank[topic][0];
+      // Niet hetzelfde topic twee keer achter elkaar
+      if (quizVragen.length === 0 || quizVragen[quizVragen.length - 1].topic !== topic) {
+        quizVragen.push({ ...vraag, topic });
+      }
+      i++;
+      if (i > 50) break; // veiligheid
+    }
+    // Als er minder dan 5 unieke zwakke topics zijn, vul aan met herhaling
+    while (quizVragen.length < 5) {
+      const topic = beschikbaar[quizVragen.length % beschikbaar.length];
+      quizVragen.push({ ...vragenBank[topic][0], topic });
+    }
+    quizVragen = quizVragen.slice(0, 5);
+  }
+}
+
+function startQuiz() {
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizVragen[currentQ];
+  const pct = ((currentQ + 1) / quizVragen.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Vraag ${currentQ + 1} van ${quizVragen.length}`;
+  document.getElementById('q-score-live').textContent = `${score} goed`;
+  document.getElementById('btn-next').classList.remove('visible');
+  const letters = ['A', 'B', 'C', 'D'];
+  const isLast = currentQ === quizVragen.length - 1;
+  document.getElementById('q-container').innerHTML = `
+    <div class="q-card">
+      <span class="q-topic-badge">${onderwerpLabels[q.topic] || q.topic}</span>
+      <p class="q-text">${q.text}</p>
+      <p class="q-instruction">${q.instruction}</p>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <button class="opt-btn" onclick="answer(${i})" data-index="${i}">
+            <span class="opt-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="feedback"></div>
+    </div>`;
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = isLast ? 'Bekijk resultaat →' : 'Volgende vraag →';
+}
+
+function answer(selected) {
+  const q = quizVragen[currentQ];
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = selected === q.correct;
+  btns[selected].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[q.correct].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  fb.className = `feedback-box ${isCorrect ? 'correct' : 'wrong'}`;
+  fb.textContent = isCorrect ? q.feedback.correct : q.feedback.wrong;
+  if (isCorrect) score++;
+  results.push({ topic: q.topic, correct: isCorrect });
+  document.getElementById('q-score-live').textContent = `${score} goed`;
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < quizVragen.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+
+  const geslaagd = score >= 4;
+  const bijna = score === 3;
+
+  let sprong, sprongKlasse, tekst;
+  if (geslaagd) {
+    sprong = score === 5 ? '🏆 B2-klaar!' : '✓ Je bent er klaar voor';
+    sprongKlasse = 'sprong-ja';
+    tekst = score === 5
+      ? `Perfect! Je hebt alle 5 vragen goed beantwoord op precies de onderwerpen die je eerder fout had. Dit is echte groei.`
+      : `${score} van de 5 goed op jouw zwakste punten — dat is genoeg voor de niveausprong. Ga door met oefenen om het te consolideren.`;
+  } else if (bijna) {
+    sprong = '⚡ Bijna — nog even oefenen';
+    sprongKlasse = 'sprong-bijna';
+    tekst = `3 van de 5 is een goede basis, maar nog net niet genoeg. Ga terug naar het leerplan, focus op de vragen die je fout had, en probeer het opnieuw.`;
+  } else {
+    sprong = `Nog niet klaar — ga verder oefenen`;
+    sprongKlasse = 'sprong-nee';
+    tekst = `${score} van de 5 — er is nog werk aan de winkel. Geen paniek: ga terug naar het leerplan en de dagelijkse minioefening. De volgende check gaat beter.`;
+  }
+
+  const bollenHtml = results.map(r =>
+    `<div class="score-bol ${r.correct ? 'bol-goed' : 'bol-fout'}">${r.correct ? '✓' : '✗'}</div>`
+  ).join('');
+
+  const rijenHtml = results.map(r =>
+    `<div class="resultaat-rij">
+      <span>${onderwerpLabels[r.topic] || r.topic}</span>
+      <span class="${r.correct ? 'resultaat-goed' : 'resultaat-fout'}">${r.correct ? '✓' : '✗'}</span>
+    </div>`
+  ).join('');
+
+  document.getElementById('result-screen').innerHTML = `
+    <div class="result-card">
+      <div class="eyebrow" style="justify-content:center">Niveausprong-check</div>
+      <div class="score-rij">${bollenHtml}</div>
+      <div class="sprong-badge ${sprongKlasse}">${sprong}</div>
+      <p class="result-tekst">${tekst}</p>
+      <div class="resultaat-onderwerpen">${rijenHtml}</div>
+      <div class="result-knoppen">
+        ${geslaagd
+          ? `<a href="hertest.html" class="btn-actie primair">📊 Doe de volledige hertest →</a>`
+          : `<a href="leerplan-na-test.html" class="btn-actie primair">📚 Terug naar leerplan →</a>`
+        }
+        <button class="btn-actie secundair" onclick="opnieuw()">↺ Check opnieuw doen</button>
+        <a href="index.html" class="btn-actie secundair">← Terug naar overzicht</a>
+      </div>
+    </div>`;
+}
+
+function opnieuw() {
+  currentQ = 0; score = 0; results = [];
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('result-screen').innerHTML = '';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+</script>
+</body>
+</html>

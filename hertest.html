@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hertest — Frans op z'n AI's</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;1,300;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink: #1a1814;
+    --gold: #c8952a;
+    --gold-light: #e8c87a;
+    --gold-pale: #fdf8ef;
+    --blue-fr: #0a2e6e;
+    --red-fr: #c1121f;
+    --muted: #8a8070;
+    --card: #ffffff;
+    --border: #e0d8c8;
+    --correct: #1a6b3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--ink); font-family: 'DM Mono', monospace; min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 15% 20%, rgba(200,149,42,0.07) 0%, transparent 50%), radial-gradient(circle at 85% 75%, rgba(10,46,110,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; padding: 48px 24px 100px; }
+
+  .site-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 56px; }
+  .logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--gold); }
+  .flag { display: flex; gap: 2px; height: 16px; }
+  .flag div { width: 8px; border-radius: 1px; }
+  .flag .b { background: var(--blue-fr); }
+  .flag .w { background: #fff; border: 1px solid #ddd; }
+  .flag .r { background: var(--red-fr); }
+
+  .terug { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; margin-bottom: 40px; transition: color 0.2s; }
+  .terug:hover { color: var(--ink); }
+
+  .eyebrow { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--gold-light); max-width: 60px; }
+
+  h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 6vw, 3rem); font-weight: 300; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 12px; }
+  h1 em { font-style: italic; font-weight: 600; color: var(--gold); }
+
+  .intro-sub { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 32px; max-width: 540px; }
+
+  /* Vorige score banner */
+  .vorige-score {
+    background: var(--ink); color: var(--cream); border-radius: 6px;
+    padding: 18px 24px; margin-bottom: 32px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .vorige-num { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+  .vorige-label { font-size: 11px; color: #c8c0a8; line-height: 1.6; }
+  .vorige-label strong { color: white; display: block; font-size: 12.5px; margin-bottom: 2px; }
+
+  /* Pills */
+  .pill-rij { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .pill { font-size: 10px; letter-spacing: 0.06em; background: white; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 20px; }
+
+  /* Intro screen */
+  .btn-start {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--ink); color: var(--cream);
+    font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 0.1em;
+    padding: 14px 28px; border-radius: 2px; border: none; cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase; position: relative; overflow: hidden;
+  }
+  .btn-start::after { content: ''; position: absolute; inset: 0; background: var(--gold); transform: translateX(-100%); transition: transform 0.3s ease; z-index: 0; }
+  .btn-start:hover::after { transform: translateX(0); }
+  .btn-start:hover { color: var(--ink); }
+  .btn-start span { position: relative; z-index: 1; }
+
+  /* Quiz */
+  #quiz-screen { display: none; }
+
+  .progress-bar-wrap { margin-bottom: 28px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { height: 3px; background: var(--border); border-radius: 2px; }
+  .progress-fill { height: 3px; background: var(--gold); border-radius: 2px; transition: width 0.4s ease; }
+
+  .q-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 28px; box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    margin-bottom: 20px; animation: fadeUp 0.3s ease both;
+  }
+  .q-level-badge { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; font-weight: 500; display: inline-block; margin-bottom: 16px; }
+  .badge-b1 { background: #e8f0fc; color: var(--blue-fr); }
+  .badge-b2 { background: var(--gold-pale); color: #7a5010; }
+  .q-text { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 300; line-height: 1.5; color: var(--ink); margin-bottom: 8px; }
+  .q-instruction { font-size: 11.5px; color: var(--muted); margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
+    background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px;
+    cursor: pointer; font-family: 'DM Mono', monospace; font-size: 13px;
+    text-align: left; transition: all 0.15s; color: var(--ink);
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-pale); }
+  .opt-btn.correct { background: #e8f4ec; border-color: var(--correct); color: var(--correct); }
+  .opt-btn.wrong { background: #fce8ea; border-color: var(--red-fr); color: var(--red-fr); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-letter { font-weight: 500; flex-shrink: 0; opacity: 0.5; }
+  .feedback-box { margin-top: 16px; font-size: 12.5px; line-height: 1.75; padding: 14px 16px; border-radius: 4px; display: none; }
+  .feedback-box.correct { background: #e8f4ec; color: #1a5c34; border: 1px solid #b8dfc8; display: block; }
+  .feedback-box.wrong { background: #fce8ea; color: #8a1220; border: 1px solid #f0b8be; display: block; }
+
+  .btn-next {
+    display: none; width: 100%;
+    background: var(--ink); color: var(--cream);
+    font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+    padding: 14px; border-radius: 2px; border: none; cursor: pointer;
+    text-transform: uppercase; transition: all 0.2s;
+  }
+  .btn-next:hover { background: var(--gold); color: var(--ink); }
+  .btn-next.visible { display: block; animation: fadeUp 0.3s ease both; }
+
+  /* Resultaat */
+  #result-screen { display: none; }
+
+  .result-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 36px 28px; box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    text-align: center; animation: fadeUp 0.4s ease both;
+  }
+
+  .vergelijk-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 28px 0; flex-wrap: wrap; }
+  .score-blok { text-align: center; }
+  .score-groot { font-family: 'Fraunces', serif; font-size: 3.5rem; font-weight: 700; line-height: 1; }
+  .score-groot.oud { color: var(--muted); }
+  .score-groot.nieuw { color: var(--gold); }
+  .score-groot.beter { color: var(--correct); }
+  .score-groot.slechter { color: var(--red-fr); }
+  .score-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .pijl-midden { font-size: 2rem; color: var(--gold-light); }
+
+  .delta-badge {
+    display: inline-block; font-family: 'Fraunces', serif;
+    font-size: 1.1rem; font-weight: 700; padding: 8px 20px; border-radius: 4px; margin: 8px 0 20px;
+  }
+  .delta-plus { background: #e8f4ec; color: var(--correct); }
+  .delta-nul { background: var(--cream); color: var(--muted); border: 1px solid var(--border); }
+  .delta-min { background: #fce8ea; color: var(--red-fr); }
+
+  .result-tekst { font-size: 13px; color: var(--muted); line-height: 1.8; max-width: 460px; margin: 0 auto 28px; }
+
+  .result-knoppen { display: flex; flex-direction: column; gap: 10px; }
+  .btn-actie {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px; border-radius: 2px; font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase;
+    text-decoration: none; border: none; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-actie.primair { background: var(--ink); color: var(--cream); }
+  .btn-actie.primair:hover { background: var(--gold); color: var(--ink); }
+  .btn-actie.secundair { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+  .btn-actie.secundair:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Geen test */
+  .geen-test { background: var(--card); border: 1.5px dashed var(--border); border-radius: 8px; padding: 40px 28px; text-align: center; }
+  .geen-test-icon { font-size: 32px; margin-bottom: 16px; }
+  .geen-test h2 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; font-style: italic; color: var(--muted); margin-bottom: 10px; }
+  .geen-test p { font-size: 12.5px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .btn-test { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--cream); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.09em; padding: 11px 22px; border-radius: 2px; text-decoration: none; text-transform: uppercase; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="site-header">
+    <a href="index.html" class="logo">Frans op z'n <span>AI's</span></a>
+    <div class="flag"><div class="b"></div><div class="w"></div><div class="r"></div></div>
+  </div>
+
+  <a href="index.html" class="terug">← Terug naar overzicht</a>
+
+  <!-- Geen test -->
+  <div id="geen-test-blok" style="display:none">
+    <div class="geen-test">
+      <div class="geen-test-icon">🔒</div>
+      <h2>Doe eerst de niveautest</h2>
+      <p>De hertest vergelijkt je score met je eerste test.<br>Doe eerst de originele test om een beginpunt vast te leggen.</p>
+      <a href="franstest-b1-b2.html" class="btn-test"><span>Naar de niveautest</span> →</a>
+    </div>
+  </div>
+
+  <!-- Intro screen -->
+  <div id="intro-screen" style="display:none">
+    <div class="eyebrow">Hertest</div>
+    <h1>Ben ik<br><em>gegroeid?</em></h1>
+    <p class="intro-sub">
+      Dezelfde 10 onderwerpen als de eerste test, maar met nieuwe vragen.
+      Na afloop zie je naast elkaar: je oude score en je nieuwe score.
+    </p>
+
+    <div class="vorige-score" id="vorige-score-banner">
+      <div class="vorige-num" id="vorige-num">—</div>
+      <div class="vorige-label">
+        <strong>Jouw eerste score</strong>
+        Dit vergelijken we straks met je hertest
+      </div>
+    </div>
+
+    <div class="pill-rij">
+      <span class="pill">📋 10 nieuwe vragen</span>
+      <span class="pill">⏱ 5 minuten</span>
+      <span class="pill">📊 Vergelijking achteraf</span>
+      <span class="pill">Gratis</span>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">
+      <span>Hertest starten</span>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- Quiz screen -->
+  <div id="quiz-screen">
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <span id="q-counter">Vraag 1 van 10</span>
+        <span id="q-score-live">0 goed</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:10%"></div>
+      </div>
+    </div>
+    <div id="q-container"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Volgende vraag →</button>
+  </div>
+
+  <!-- Resultaat screen -->
+  <div id="result-screen"></div>
+
+</div>
+<script>
+// Hertest — andere vragen, zelfde 10 onderwerpen
+const questions = [
+  {
+    level: "B1",
+    text: "« Il faut que nous ___ cette règle. »",
+    instruction: "Kies de juiste subjonctif-vorm",
+    options: ["comprendrons", "comprenons", "comprenions", "comprendions"],
+    correct: 2,
+    topic: "Subjonctif na vouloir que",
+    feedback: {
+      correct: "✓ Juist! Na 'il faut que' gebruik je altijd de subjonctif. 'Comprenions' is de subjonctif van 'comprendre'.",
+      wrong: "Na 'il faut que' komt de subjonctif. Het antwoord is 'comprenions' — de subjonctif présent van 'comprendre'."
+    }
+  },
+  {
+    level: "B1",
+    text: "« ___ être arrivée, elle a appelé ses parents. »",
+    instruction: "Welk voorzetsel past hier?",
+    options: ["Avant d'", "Après", "Pendant", "Pour"],
+    correct: 1,
+    topic: "Après avoir/être",
+    feedback: {
+      correct: "✓ Correct! 'Après + être + voltooid deelwoord' geeft aan dat iets eerst gebeurde.",
+      wrong: "Het juiste antwoord is 'Après'. De structuur: après + être/avoir + voltooid deelwoord."
+    }
+  },
+  {
+    level: "B1",
+    text: "Zet actief om naar passief: « Les étudiants ont écrit les examens. »",
+    instruction: "Welke passieve zin is correct?",
+    options: [
+      "Les examens ont été écrits par les étudiants.",
+      "Les examens étaient écrits les étudiants.",
+      "Les examens sont écrivant par les étudiants.",
+      "Les examens ont écrit par les étudiants."
+    ],
+    correct: 0,
+    topic: "Passieve zin",
+    feedback: {
+      correct: "✓ Bravo! Passé composé passief = avoir été + voltooid deelwoord + par.",
+      wrong: "De passieve vorm in de passé composé is: avoir été + voltooid deelwoord + par. Antwoord: 'ont été écrits par les étudiants'."
+    }
+  },
+  {
+    level: "B1",
+    text: "« C'est la ville ___ il est né. »",
+    instruction: "Welk relatief voornaamwoord hoort hier?",
+    options: ["que", "dont", "où", "qui"],
+    correct: 2,
+    topic: "Relatief voornaamwoord dont",
+    feedback: {
+      correct: "✓ Perfect! 'Où' gebruik je voor plaatsen en tijdstippen in relatieve bijzinnen.",
+      wrong: "Het juiste antwoord is 'où'. Voor plaatsen in een relatieve bijzin gebruik je 'où', niet 'que' of 'dont'."
+    }
+  },
+  {
+    level: "B1",
+    text: "Kies de juiste tijd: « Hier soir, je ___ un film et soudain le téléphone a sonné. »",
+    instruction: "Achtergrond vs. plotselinge actie",
+    options: ["ai regardé", "regardais", "regarde", "regarderai"],
+    correct: 1,
+    topic: "Imparfait vs passé composé",
+    feedback: {
+      correct: "✓ Juist! 'Regardais' (imparfait) beschrijft de achtergrond; 'a sonné' (passé composé) is de plotselinge actie.",
+      wrong: "Gebruik de imparfait voor een achtergrondhandeling die onderbroken wordt. Antwoord: 'regardais'."
+    }
+  },
+  {
+    level: "B2",
+    text: "« Quoiqu'elle ___ de bonnes notes, ses parents n'étaient pas satisfaits. »",
+    instruction: "Subjonctif of indicatif na 'quoique'?",
+    options: ["a", "avait", "ait", "aura"],
+    correct: 2,
+    topic: "Bien que + subjonctif",
+    feedback: {
+      correct: "✓ Uitstekend! 'Quoique' (hoewel) vereist net als 'bien que' altijd de subjonctif.",
+      wrong: "Na 'quoique' (hoewel) gebruik je altijd de subjonctif. Het antwoord is 'ait' (subjonctif van 'avoir')."
+    }
+  },
+  {
+    level: "B2",
+    text: "Kies de correcte si-zin voor een hypothetische situatie in het heden:",
+    instruction: "Welke structuur klopt?",
+    options: [
+      "Si tu travaillerais plus, tu réussirais.",
+      "Si tu travaillais plus, tu réussirais.",
+      "Si tu as travaillé plus, tu réussiras.",
+      "Si tu travailles plus, tu aurais réussi."
+    ],
+    correct: 1,
+    topic: "Si-zin hypothetisch verleden",
+    feedback: {
+      correct: "✓ Parfait! Hypothetisch heden: si + imparfait → conditionnel présent.",
+      wrong: "Voor een hypothetische situatie in het heden: si + imparfait + conditionnel présent. Nooit 'rais' na si! Antwoord: 'Si tu travaillais plus, tu réussirais.'"
+    }
+  },
+  {
+    level: "B2",
+    text: "« Elle s'est blessée ___ faire du ski. »",
+    instruction: "Kies de juiste gérondif-constructie",
+    options: ["pour", "en", "à", "de"],
+    correct: 1,
+    topic: "Gérondif",
+    feedback: {
+      correct: "✓ Correct! 'En faisant' — de gérondif drukt twee gelijktijdige acties uit of geeft de omstandigheid aan.",
+      wrong: "De gérondif = 'en' + tegenwoordig deelwoord. Hier: 'en faisant du ski'. Antwoord: 'en'."
+    }
+  },
+  {
+    level: "B2",
+    text: "Welke zin is het meest formeel?",
+    instruction: "Kies de genominaliseerde versie",
+    options: [
+      "Ils ont annoncé qu'ils partiront.",
+      "L'annonce de leur départ a été faite.",
+      "Ils ont dit qu'ils vont partir.",
+      "Leur partir a été annoncé."
+    ],
+    correct: 1,
+    topic: "Nominalisering",
+    feedback: {
+      correct: "✓ Bravo! 'L'annonce de leur départ' — nominalisering van het werkwoord 'annoncer' en 'partir'. Typisch formeel Frans.",
+      wrong: "De formele versie gebruikt nominalisering: 'L'annonce de leur départ a été faite.' — werkwoorden omgezet naar zelfstandige naamwoorden."
+    }
+  },
+  {
+    level: "B2",
+    text: "« ___ il ne soit pas là, nous continuerons la réunion. »",
+    instruction: "Welk voegwoord past (met subjonctif)?",
+    options: ["Parce que", "Même si", "En admettant que", "À moins que"],
+    correct: 3,
+    topic: "Au cas où",
+    feedback: {
+      correct: "✓ Excellent! 'À moins que' (tenzij) + subjonctif is een typisch B2-voegwoord.",
+      wrong: "Het juiste antwoord is 'À moins que' (tenzij), gevolgd door de subjonctif. Dit is een typisch B2-constructie."
+    }
+  }
+];
+
+const stored = localStorage.getItem('fransTestResults');
+
+if (!stored) {
+  document.getElementById('geen-test-blok').style.display = 'block';
+} else {
+  document.getElementById('intro-screen').style.display = 'block';
+  const data = JSON.parse(stored);
+  const oudeScore = data.score ?? '—';
+  document.getElementById('vorige-num').textContent = `${oudeScore}/10`;
+}
+
+let currentQ = 0;
+let score = 0;
+let results = [];
+let wrongTopics = [];
+
+function startQuiz() {
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const pct = ((currentQ + 1) / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Vraag ${currentQ + 1} van ${questions.length}`;
+  document.getElementById('q-score-live').textContent = `${score} goed`;
+  document.getElementById('btn-next').classList.remove('visible');
+  const letters = ['A', 'B', 'C', 'D'];
+  const isLast = currentQ === questions.length - 1;
+  document.getElementById('q-container').innerHTML = `
+    <div class="q-card">
+      <span class="q-level-badge badge-${q.level.toLowerCase()}">${q.level}</span>
+      <p class="q-text">${q.text}</p>
+      <p class="q-instruction">${q.instruction}</p>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <button class="opt-btn" onclick="answer(${i})" data-index="${i}">
+            <span class="opt-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="feedback"></div>
+    </div>`;
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = isLast ? 'Bekijk resultaat →' : 'Volgende vraag →';
+}
+
+function answer(selected) {
+  const q = questions[currentQ];
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = selected === q.correct;
+  btns[selected].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[q.correct].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  fb.className = `feedback-box ${isCorrect ? 'correct' : 'wrong'}`;
+  fb.textContent = isCorrect ? q.feedback.correct : q.feedback.wrong;
+  if (isCorrect) score++;
+  else wrongTopics.push(q.topic);
+  results.push({ topic: q.topic, correct: isCorrect });
+  document.getElementById('q-score-live').textContent = `${score} goed`;
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < questions.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+
+  const data = JSON.parse(localStorage.getItem('fransTestResults') || '{}');
+  const oudeScore = data.score ?? 0;
+  const delta = score - oudeScore;
+
+  let deltaHtml, resultTekst;
+  if (delta > 0) {
+    deltaHtml = `<span class="delta-badge delta-plus">+${delta} punt${delta !== 1 ? 'en' : ''} vooruitgang 🎉</span>`;
+    resultTekst = delta >= 3
+      ? `Indrukwekkende groei! Van ${oudeScore}/10 naar ${score}/10 — dat is geen toeval. Je grammatica gaat er echt op vooruit.`
+      : `Goede vooruitgang! Elke stap telt. Blijf oefenen en de volgende hertest zal nog beter gaan.`;
+  } else if (delta === 0) {
+    deltaHtml = `<span class="delta-badge delta-nul">Zelfde score als de eerste test</span>`;
+    resultTekst = `Gelijkblijvende score betekent niet stilstaan — het betekent dat je nog consistenter moet oefenen. Probeer de dagelijkse minioefening nog wat vaker.`;
+  } else {
+    deltaHtml = `<span class="delta-badge delta-min">${delta} punt${Math.abs(delta) !== 1 ? 'en' : ''} ten opzichte van de eerste test</span>`;
+    resultTekst = `Een lagere score is geen ramp — het kan ook aan de vraagstelling liggen. Ga terug naar het leerplan en focus op je zwakke punten.`;
+  }
+
+  // Hertest-resultaten opslaan
+  localStorage.setItem('fransHertestResults', JSON.stringify({ score, wrongTopics, results }));
+
+  document.getElementById('result-screen').innerHTML = `
+    <div class="result-card">
+      <div class="eyebrow" style="justify-content:center">Hertest resultaat</div>
+      <h1 style="font-size:1.8rem;margin-bottom:8px">Jouw voortgang</h1>
+      <div class="vergelijk-wrap">
+        <div class="score-blok">
+          <div class="score-groot oud">${oudeScore}<span style="font-size:1.5rem;color:var(--muted)">/10</span></div>
+          <div class="score-label">Eerste test</div>
+        </div>
+        <div class="pijl-midden">→</div>
+        <div class="score-blok">
+          <div class="score-groot ${delta > 0 ? 'beter' : delta < 0 ? 'slechter' : 'nieuw'}">${score}<span style="font-size:1.5rem">/10</span></div>
+          <div class="score-label">Hertest</div>
+        </div>
+      </div>
+      ${deltaHtml}
+      <p class="result-tekst">${resultTekst}</p>
+      <div class="result-knoppen">
+        <a href="leerplan-na-test.html" class="btn-actie primair">📚 Terug naar leerplan →</a>
+        <button class="btn-actie secundair" onclick="hertestOpnieuw()">↺ Hertest opnieuw doen</button>
+        <a href="index.html" class="btn-actie secundair">← Terug naar overzicht</a>
+      </div>
+    </div>`;
+}
+
+function hertestOpnieuw() {
+  currentQ = 0; score = 0; results = []; wrongTopics = [];
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('result-screen').innerHTML = '';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+</script>
+</body>
+</html>
