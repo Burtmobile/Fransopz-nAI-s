@@ -101,6 +101,7 @@
   #fase-2-3.zichtbaar { display: block; animation: fadeUp 0.6s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
 </style>
 </head>
 <body>
@@ -114,10 +115,11 @@
   <div class="intro">
     <div class="eyebrow">Welkom</div>
     <h1>Frans leren<br>met <em>AI als coach.</em></h1>
-    <div class="persoonlijk">
+
+<div class="persoonlijk">
       <p>Ik ben geen leraar en ook geen talenkundige. Ik ben gewoon iemand die <strong>dol is op Frans</strong> — op de klank ervan, op de precisie die het vraagt, op de gesprekken die het mogelijk maakt.</p>
       <p>Maar taalApps? Die werken niet voor mij. Te duur, te gamified — streaks, levens, beloningspunten. Ik wil geen spelletje spelen, <strong>ik wil een taal leren.</strong> En ik vroeg me af: kan AI dat beter? Kan ik met Claude als coach verder komen dan met welke app dan ook?</p>
-      <p>Dit is mijn poging om dat uit te vinden. Mijn grammatica wil ik van B1 naar B2 brengen. Mijn conversatie van B2 naar C1. Niet via een abonnement of een puntenlijstje — maar door <strong>slim te leren ontdekken hoe AI daarin kan helpen.</strong></p>
+      <p>Dit is mijn poging om dat uit te vinden. Mijn grammatica wil ik van B1 naar B2 brengen — en ik wil Frans echt kunnen gebruiken, in een gesprek, zonder te stamelen. Niet via een abonnement of een puntenlijstje — maar door <strong>slim te leren ontdekken hoe AI daarin kan helpen.</strong></p>
       <div class="auteur">
         <div class="auteur-avatar">F</div>
         <div class="auteur-info">
@@ -209,24 +211,24 @@
 
     <div class="fase-label">
       <span class="fase-num">Fase 3</span>
-      <span class="fase-titel">Conversatie · B2 → C1</span>
+      <span class="fase-titel">Gespreksvaardigheid</span>
       <span class="fase-lijn"></span>
     </div>
     <div class="routes">
-      <div class="route-card coming-soon">
+      <div class="route-card">
         <div class="route-top">
-          <div class="route-meta"><span class="route-badge badge-soon">In aanbouw</span><span class="route-niveau">Het grote doel</span></div>
-          <div class="route-titel">Van B2 naar C1<br>in conversatie</div>
-          <p class="route-sub">Niet meer zoeken naar woorden. Leren variëren, nuanceren en reageren zoals iemand die de taal écht beheerst — met Claude als oefenpartner. Rollenspellen, correctieve feedback en gespreksopdrachten op maat.</p>
+          <div class="route-meta"><span class="route-badge badge-actief">✓ Beschikbaar</span><span class="route-niveau">Spreken & begrijpen</span></div>
+          <div class="route-titel">Oefenen in gesprek<br>met Claude</div>
+          <p class="route-sub">Geen meerkeuze, geen theorie — gewoon Frans praten. Kies een onderwerp, voer het gesprek in Claude, en vraag daarna een eerlijke ERK-analyse van jouw niveau. Wat gaat goed, wat kan beter, en wat is de volgende stap?</p>
         </div>
         <div class="route-stappen">
-          <div class="stap"><span class="stap-num">1</span><span>Gespreksniveaucheck</span></div>
+          <div class="stap done"><span class="stap-num">✓</span><span>Gespreksniveaucheck</span></div>
           <div class="stap"><span class="stap-num">2</span><span>Gerichte oefengesprekken</span></div>
           <div class="stap"><span class="stap-num">3</span><span>Voortgangscheck</span></div>
         </div>
         <div class="route-cta">
-          <button class="btn-route disabled"><span>Binnenkort beschikbaar</span></button>
-          <div class="cta-sub">Wordt gebouwd — stap voor stap</div>
+          <a href="conversatie-check.html" class="btn-route"><span>Start de gespreksoefening</span><span class="arrow">→</span></a>
+          <div class="cta-sub">🗣 Praat Frans · krijg persoonlijke feedback</div>
         </div>
       </div>
     </div>
@@ -248,6 +250,15 @@
   if (localStorage.getItem('fransTestResults')) {
     document.getElementById('fase-vergrendeld').style.display = 'none';
     document.getElementById('fase-2-3').classList.add('zichtbaar');
+  }
+
+  function toggleVideo(ring) {
+    const video = ring.querySelector('video');
+    video.muted = !video.muted;
+    const overlay = ring.querySelector('.play-overlay');
+    overlay.textContent = video.muted ? '🔇' : '🔊';
+    overlay.style.opacity = '1';
+    setTimeout(() => { overlay.style.opacity = '0'; }, 1200);
   }
 </script>
 </body>
