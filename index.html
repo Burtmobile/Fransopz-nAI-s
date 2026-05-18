@@ -1,265 +1,885 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Frans op z'n AI's</title>
+<title>Frans op z'n AI's · French the AI Way</title>
+<meta name="description" content="Frans leren van B1 naar B2 met Claude als coach — geen app, geen abonnement. Learn French the AI way: adaptive grammar practice, writing exercises and conversation checks powered by AI.">
+<meta property="og:title" content="Frans op z'n AI's · French the AI Way">
+<meta property="og:description" content="Frans leren van B1 naar B2 met Claude als coach — geen app, geen abonnement, geen gamificatie.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://frans.satter.tv">
+<meta name="robots" content="index, follow">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;1,300;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #f5f0e8; --ink: #1a1814; --gold: #c8952a; --gold-light: #e8c87a;
-    --gold-pale: #fdf8ef; --blue-fr: #0a2e6e; --red-fr: #c1121f;
-    --muted: #8a8070; --card: #ffffff; --border: #e0d8c8; --correct: #1a6b3a;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--cream); color: var(--ink); font-family: 'DM Mono', monospace; min-height: 100vh; overflow-x: hidden; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 15% 20%, rgba(200,149,42,0.07) 0%, transparent 50%), radial-gradient(circle at 85% 75%, rgba(10,46,110,0.05) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(193,18,31,0.03) 0%, transparent 40%); pointer-events: none; z-index: 0; }
-  .wrap { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; padding: 48px 24px 100px; }
-  .site-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 72px; animation: fadeDown 0.5s ease both; }
-  .logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--ink); }
-  .logo span { color: var(--gold); }
-  .flag { display: flex; gap: 2px; height: 16px; }
-  .flag div { width: 8px; border-radius: 1px; }
-  .flag .b { background: var(--blue-fr); } .flag .w { background: #fff; border: 1px solid #ddd; } .flag .r { background: var(--red-fr); }
-  .intro { margin-bottom: 64px; animation: fadeUp 0.6s ease both; animation-delay: 0.1s; }
-  .eyebrow { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-  .eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--gold-light); max-width: 60px; }
-  h1 { font-family: 'Fraunces', serif; font-size: clamp(2.6rem, 8vw, 4.2rem); font-weight: 300; line-height: 1.04; letter-spacing: -0.03em; margin-bottom: 28px; }
-  h1 em { font-style: italic; font-weight: 600; color: var(--gold); }
-  .persoonlijk { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 28px 32px; margin-bottom: 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
-  .persoonlijk::before { content: '"'; position: absolute; top: -10px; left: 24px; font-family: 'Fraunces', serif; font-size: 6rem; color: var(--gold-light); line-height: 1; pointer-events: none; }
-  .persoonlijk p { font-size: 13.5px; line-height: 1.85; color: #3a3530; position: relative; z-index: 1; }
-  .persoonlijk p + p { margin-top: 14px; }
-  .persoonlijk strong { color: var(--ink); font-weight: 500; }
-  .auteur { display: flex; align-items: center; gap: 12px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
-  .auteur-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--blue-fr)); display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; color: white; flex-shrink: 0; }
-  .auteur-info { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .auteur-info strong { display: block; color: var(--ink); font-size: 12px; font-weight: 500; margin-bottom: 1px; }
-  .waarom-ai { background: var(--ink); color: var(--cream); border-radius: 6px; padding: 22px 28px; margin-bottom: 56px; display: flex; align-items: flex-start; gap: 18px; animation: fadeUp 0.6s ease both; animation-delay: 0.2s; }
-  .ai-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-  .waarom-ai p { font-size: 12.5px; line-height: 1.8; color: #c8c0a8; }
-  .waarom-ai strong { color: var(--gold-light); font-weight: 500; }
-  .fase-label { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; animation: fadeUp 0.5s ease both; animation-delay: 0.25s; }
-  .fase-num { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; background: var(--ink); color: var(--cream); padding: 4px 10px; border-radius: 2px; flex-shrink: 0; }
-  .fase-titel { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
-  .fase-lijn { flex: 1; height: 1px; background: var(--border); }
-  .routes { display: flex; flex-direction: column; gap: 20px; animation: fadeUp 0.6s ease both; animation-delay: 0.3s; margin-bottom: 48px; }
-  .keuze-intro { font-size: 12.5px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; max-width: 520px; animation: fadeUp 0.5s ease both; animation-delay: 0.3s; }
-  .keuze-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; animation: fadeUp 0.6s ease both; animation-delay: 0.35s; margin-bottom: 48px; }
-  @media (max-width: 520px) { .keuze-grid { grid-template-columns: 1fr; } }
-  .keuze-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 22px; box-shadow: 0 2px 16px rgba(0,0,0,0.04); transition: box-shadow 0.2s ease, transform 0.2s ease; position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block; }
-  .keuze-card:hover { box-shadow: 0 5px 28px rgba(0,0,0,0.08); transform: translateY(-2px); }
-  .keuze-card.soon { opacity: 0.65; pointer-events: none; }
-  .keuze-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-  .keuze-icon { font-size: 26px; line-height: 1; }
-  .keuze-status { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; font-weight: 500; }
-  .status-actief { background: #e8f4ec; color: var(--correct); }
-  .status-soon { background: #f0ece4; color: var(--muted); }
-  .keuze-titel { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 8px; }
-  .keuze-sub { font-size: 11.5px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
-  .keuze-tag { display: inline-block; font-size: 10px; letter-spacing: 0.06em; background: var(--gold-pale); border: 1px solid #e8d89a; color: #7a5010; padding: 4px 10px; border-radius: 20px; }
-  .keuze-card.soon .keuze-tag { background: var(--cream); border-color: var(--border); color: var(--muted); }
-  .route-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 20px rgba(0,0,0,0.04); transition: box-shadow 0.25s ease, transform 0.25s ease; }
-  .route-card:hover { box-shadow: 0 6px 32px rgba(0,0,0,0.09); transform: translateY(-2px); }
-  .route-card.coming-soon { opacity: 0.72; }
-  .route-card.coming-soon:hover { transform: none; box-shadow: 0 2px 20px rgba(0,0,0,0.04); }
-  .route-top { padding: 28px 28px 22px; border-bottom: 1px solid var(--border); }
-  .route-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .route-badge { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; font-weight: 500; }
-  .badge-actief { background: #e8f4ec; color: var(--correct); }
-  .badge-soon { background: #e8eef8; color: var(--blue-fr); }
-  .route-niveau { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
-  .route-titel { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600; line-height: 1.25; color: var(--ink); margin-bottom: 10px; }
-  .route-sub { font-size: 12.5px; color: var(--muted); line-height: 1.75; max-width: 480px; }
-  .route-stappen { padding: 18px 28px; display: flex; gap: 0; flex-wrap: wrap; }
-  .stap { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); padding: 6px 0; }
-  .stap:not(:last-child)::after { content: '→'; margin: 0 8px; color: var(--gold-light); font-size: 12px; }
-  .stap .stap-num { width: 20px; height: 20px; border-radius: 50%; background: var(--cream); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; color: var(--muted); flex-shrink: 0; }
-  .stap.done .stap-num { background: var(--correct); border-color: var(--correct); color: white; }
-  .route-cta { padding: 18px 28px 22px; border-top: 1px solid var(--border); background: var(--cream); }
-  .btn-route { display: inline-flex; align-items: center; gap: 10px; background: var(--ink); color: var(--cream); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.09em; padding: 12px 22px; border-radius: 2px; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; position: relative; overflow: hidden; }
-  .btn-route::after { content: ''; position: absolute; inset: 0; background: var(--gold); transform: translateX(-100%); transition: transform 0.3s ease; z-index: 0; }
-  .btn-route:hover::after { transform: translateX(0); } .btn-route:hover { color: var(--ink); }
-  .btn-route span, .btn-route .arrow { position: relative; z-index: 1; }
-  .btn-route.disabled { background: #d4cdb8; color: #a09080; cursor: default; pointer-events: none; }
-  .btn-route.disabled::after { display: none; }
-  .cta-sub { margin-top: 10px; font-size: 11px; color: var(--muted); }
-  .manifest { margin-top: 56px; padding: 28px 0; border-top: 1px solid var(--border); animation: fadeUp 0.6s ease both; animation-delay: 0.4s; }
-  .manifest-title { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
-  .manifest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 500px) { .manifest-grid { grid-template-columns: 1fr; } }
-  .manifest-item { display: flex; gap: 12px; align-items: flex-start; }
-  .manifest-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-  .manifest-tekst { font-size: 12px; line-height: 1.7; color: var(--muted); }
-  .manifest-tekst strong { display: block; color: var(--ink); font-size: 12.5px; margin-bottom: 2px; font-weight: 500; }
-  #fase-vergrendeld { border: 1.5px dashed var(--border); border-radius: 8px; padding: 32px 24px; text-align: center; margin-top: 8px; animation: fadeUp 0.5s ease both; animation-delay: 0.35s; }
-  .slot-icon { font-size: 28px; margin-bottom: 12px; }
-  .slot-titel { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--muted); margin-bottom: 8px; font-style: italic; }
-  .slot-sub { font-size: 12px; color: var(--muted); line-height: 1.7; max-width: 360px; margin: 0 auto 20px; }
-  .slot-pijl { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
-  #fase-2-3 { display: none; }
-  #fase-2-3.zichtbaar { display: block; animation: fadeUp 0.6s ease both; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+:root {
+  --gold:       #c8952a;
+  --gold-light: #e8c87a;
+  --cream:      #f5f0e8;
+  --ink:        #1a1814;
+}
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: linear-gradient(
+    to bottom,
+    #020510 0%,
+    #06091e 28%,
+    #090c26 55%,
+    #10091e 78%,
+    #1a0c14 90%,
+    #220e08 100%
+  );
+  color: #f0ece4;
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+}
+
+/* ── Stars canvas ─────────────────────────────────────── */
+#star-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Skyline ──────────────────────────────────────────── */
+.skyline-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  pointer-events: none;
+  line-height: 0;
+}
+.skyline-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Content overlay ──────────────────────────────────── */
+.content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 660px;
+  padding: 48px 24px calc(28vw + 10px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── Return banner ────────────────────────────────────── */
+.return-banner {
+  background: rgba(12,10,20,0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(200,149,42,0.22);
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 520px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  opacity: 0;
+  transition: opacity 0.5s ease 0.2s;
+}
+.return-banner.show    { display: flex; }
+.return-banner.visible { opacity: 1; }
+.rb-text { font-size: 11.5px; color: rgba(200,185,165,0.75); line-height: 1.6; }
+.rb-text strong { color: #fff; display: block; font-size: 12px; margin-bottom: 1px; }
+.rb-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 2px;
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.rb-btn:hover { background: var(--gold-light); }
+
+/* ── Flag ─────────────────────────────────────────────── */
+.flag-row {
+  display: flex;
+  gap: 3px;
+  height: 18px;
+  justify-content: center;
+  margin-bottom: 22px;
+  opacity: 0;
+  transform: translateY(-7px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.flag-row.vis { opacity: 1; transform: translateY(0); }
+.flag-row div { width: 10px; border-radius: 2px; }
+.flag-row .b  { background: #1a4a9e; }
+.flag-row .w  { background: rgba(235,228,215,0.8); }
+.flag-row .r  { background: #c1121f; }
+
+/* ── Site name ────────────────────────────────────────── */
+.site-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 3.2vw, 1.45rem);
+  letter-spacing: -0.02em;
+  color: rgba(240,235,225,0.88);
+  text-shadow: 0 0 40px rgba(200,149,42,0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s;
+}
+.site-name.vis { opacity: 1; transform: translateY(0); }
+.site-name .g  { color: var(--gold); }
+.site-name .s  { color: rgba(255,255,255,0.18); margin: 0 10px; font-weight: 300; font-size: 0.82em; }
+
+/* ── Quote ────────────────────────────────────────────── */
+.quote-block {
+  margin: 38px 0 6px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.quote-block.vis { opacity: 1; }
+
+.quote-text {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.55rem, 5.2vw, 2.65rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+  color: #f5f0e8;
+  min-height: 3.6em;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.6);
+}
+
+.cursor {
+  display: inline-block;
+  width: 3px; height: 0.82em;
+  background: var(--gold);
+  margin-left: 3px;
+  vertical-align: middle;
+  border-radius: 1px;
+  animation: blink 0.75s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.quote-attr {
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  color: rgba(210,195,165,0.70);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.quote-attr.vis { opacity: 1; }
+
+
+/* ── Divider ornament ─────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 30px auto 20px;
+  max-width: 210px;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.divider.vis { opacity: 1; }
+.divider-line { flex: 1; height: 1px; background: rgba(200,149,42,0.22); }
+.divider-gem  {
+  width: 6px; height: 6px;
+  background: rgba(200,149,42,0.55);
+  transform: rotate(45deg);
+  border-radius: 1px;
+}
+
+/* ── Choose label ─────────────────────────────────────── */
+.choose-lbl {
+  font-size: 9.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 18px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.choose-lbl.vis { opacity: 1; }
+
+/* ── Language cards ───────────────────────────────────── */
+.lang-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+  max-width: 500px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.lang-grid.vis { opacity: 1; transform: translateY(0); }
+
+.lang-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 26px 16px 22px;
+  background: rgba(6,9,24,0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+.lang-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  background: linear-gradient(to top, rgba(200,149,42,0.1), transparent);
+  transition: height 0.3s ease;
+}
+.lang-card:hover {
+  border-color: rgba(200,149,42,0.4);
+  background: rgba(12,16,36,0.88);
+  box-shadow: 0 0 28px rgba(200,149,42,0.1), 0 8px 32px rgba(0,0,0,0.35);
+}
+.lang-card:hover::after { height: 100%; }
+
+.card-flag {
+  font-size: 33px;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.25s ease;
+}
+.lang-card:hover .card-flag { transform: scale(1.1) rotate(-3deg); }
+
+.card-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: rgba(240,235,225,0.92);
+  position: relative; z-index: 1;
+  transition: color 0.22s;
+}
+.lang-card:hover .card-name { color: var(--gold-light); }
+
+.card-sub {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: rgba(185,172,150,0.5);
+  position: relative; z-index: 1;
+  transition: color 0.22s;
+}
+.lang-card:hover .card-sub { color: rgba(185,172,150,0.8); }
+
+.card-arr {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: rgba(200,149,42,0.55);
+  position: relative; z-index: 1;
+  transition: transform 0.22s, color 0.22s;
+}
+.lang-card:hover .card-arr { transform: translateX(5px); color: var(--gold); }
+
+.prev-badge {
+  display: none;
+  position: absolute;
+  top: 8px; right: 8px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(200,149,42,0.3);
+  padding: 2px 7px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+/* ── Switch row ───────────────────────────────────────── */
+.switch-row {
+  margin-top: 20px;
+  font-size: 10.5px;
+  color: rgba(180,168,148,0.38);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.switch-row.vis { opacity: 1; }
+.switch-row button {
+  background: none; border: none; cursor: pointer;
+  color: rgba(180,168,148,0.38);
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  text-decoration: underline; padding: 0;
+}
+.switch-row button:hover { color: rgba(240,232,220,0.65); }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  .lang-grid { grid-template-columns: 1fr; max-width: 270px; }
+  .site-name .s { display: none; }
+  .content { padding-bottom: calc(30vw + 10px); }
+}
+@media (min-width: 1600px) {
+  .content { padding-bottom: calc(26vw + 10px); }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="site-header">
-    <div class="logo">Frans op z'n <span>AI's</span></div>
-    <div class="flag"><div class="b"></div><div class="w"></div><div class="r"></div></div>
-  </div>
+<!-- Stars canvas -->
+<canvas id="star-canvas"></canvas>
 
-  <div class="intro">
-    <div class="eyebrow">Welkom</div>
-    <h1>Frans leren<br>met <em>AI als coach.</em></h1>
+<!-- ══ PARIS SKYLINE SVG ══════════════════════════════════════════════ -->
+<div class="skyline-wrap">
+<svg viewBox="0 0 1200 320" preserveAspectRatio="xMidYMax meet"
+     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs>
+  <!-- Horizon glow: city warmth -->
+  <linearGradient id="hglow" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#1a0c08" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#260e06" stop-opacity="0.9"/>
+  </linearGradient>
+  <!-- Eiffel golden glow (base bloom) -->
+  <radialGradient id="tglow" cx="50%" cy="90%" r="60%">
+    <stop offset="0%" stop-color="#c8952a" stop-opacity="0.28"/>
+    <stop offset="100%" stop-color="#c8952a" stop-opacity="0"/>
+  </radialGradient>
+  <!-- Tower body gradient: warm gold at top, richer amber mid, dark base -->
+  <linearGradient id="towergrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#b8832a"/>
+    <stop offset="30%"  stop-color="#9a6820"/>
+    <stop offset="65%"  stop-color="#7a5018"/>
+    <stop offset="100%" stop-color="#3a2408"/>
+  </linearGradient>
+  <!-- Rising ambient column of light above the tower -->
+  <linearGradient id="tcolumn" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#c8952a" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#c8952a" stop-opacity="0.18"/>
+  </linearGradient>
+  <!-- Platform 1 glow (top) -->
+  <linearGradient id="platglow1" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#f0c060" stop-opacity="0.5"/>
+    <stop offset="100%" stop-color="#f0c060" stop-opacity="0"/>
+  </linearGradient>
+  <!-- Platform 2 glow (main) -->
+  <linearGradient id="platglow2" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#f0c060" stop-opacity="0.5"/>
+    <stop offset="100%" stop-color="#f0c060" stop-opacity="0"/>
+  </linearGradient>
+  <!-- Moon glow -->
+  <radialGradient id="mglow" cx="50%" cy="50%" r="50%">
+    <stop offset="0%"   stop-color="#fff8e0" stop-opacity="0.9"/>
+    <stop offset="40%"  stop-color="#ffe8a0" stop-opacity="0.25"/>
+    <stop offset="100%" stop-color="#ffe070" stop-opacity="0"/>
+  </radialGradient>
+  <!-- Mist gradient at base -->
+  <linearGradient id="mist" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0%"  stop-color="#0e0818" stop-opacity="0.7"/>
+    <stop offset="60%" stop-color="#0e0818" stop-opacity="0"/>
+  </linearGradient>
+  <!-- Seine shimmer -->
+  <linearGradient id="seine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%"   stop-color="#080c22" stop-opacity="0"/>
+    <stop offset="30%"  stop-color="#1a2060" stop-opacity="0.35"/>
+    <stop offset="50%"  stop-color="#2030a0" stop-opacity="0.18"/>
+    <stop offset="70%"  stop-color="#1a2060" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#080c22" stop-opacity="0"/>
+  </linearGradient>
+  <!-- Tower beacon glow filter -->
+  <filter id="beacon" x="-150%" y="-150%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="5"/>
+  </filter>
+  <!-- Soft building edge blur -->
+  <filter id="softedge" x="0%" y="0%" width="100%" height="100%">
+    <feGaussianBlur stdDeviation="0.5"/>
+  </filter>
+</defs>
 
-<div class="persoonlijk">
-      <p>Ik ben geen leraar en ook geen talenkundige. Ik ben gewoon iemand die <strong>het Frans nooit heeft losgelaten</strong> — op de klank ervan, op de precisie die het vraagt, op de gesprekken die het mogelijk maakt.</p>
-      <p>Maar taalApps? Die werken niet voor mij. Te duur, te gamified — streaks, levens, beloningspunten. Ik wil geen spelletje spelen, <strong>ik wil een taal leren.</strong> En ik vroeg me af: kan AI dat beter? Kan ik met Claude als coach verder komen dan met welke app dan ook?</p>
-      <p>Dit is mijn poging om dat uit te vinden. Mijn grammatica wil ik van B1 naar B2 brengen — en ik wil Frans echt kunnen gebruiken, in een gesprek, zonder te stamelen. Niet via een abonnement of een puntenlijstje — maar door <strong>slim te leren ontdekken hoe AI daarin kan helpen.</strong></p>
-      <div class="auteur">
-        <div class="auteur-avatar">F</div>
-        <div class="auteur-info">
-          <strong>Frans op z'n AI's</strong>
-          Een persoonlijk leerproject · geen instituut, geen methode, geen abonnement
-        </div>
-      </div>
+<!-- ── Moon ── -->
+<g>
+  <circle cx="148" cy="68" r="70" fill="url(#mglow)"/>
+  <circle cx="148" cy="68" r="28" fill="rgba(255,250,228,0.88)"/>
+  <!-- subtle moon crescent shadow -->
+  <circle cx="156" cy="65" r="24" fill="rgba(12,10,22,0.18)"/>
+</g>
+
+<!-- ── Horizon city glow ── -->
+<rect x="0" y="180" width="1200" height="140" fill="url(#hglow)"/>
+
+<!-- ── BUILDINGS — FAR LEFT ── -->
+<g fill="#040714" filter="url(#softedge)">
+  <rect x="0"   y="262" width="42"  height="58"/>
+  <rect x="42"  y="242" width="30"  height="78"/>
+  <rect x="47"  y="230" width="6"   height="14"/><!-- chimney -->
+  <rect x="72"  y="255" width="24"  height="65"/>
+  <rect x="96"  y="244" width="35"  height="76"/>
+  <rect x="100" y="231" width="6"   height="15"/>
+  <rect x="107" y="231" width="6"   height="15"/>
+  <rect x="131" y="258" width="26"  height="62"/>
+  <rect x="157" y="239" width="32"  height="81"/>
+  <rect x="161" y="226" width="6"   height="15"/>
+  <polygon points="189,239 199,222 209,239"/><!-- mansard -->
+  <rect x="189" y="239" width="20"  height="81"/>
+  <rect x="209" y="252" width="28"  height="68"/>
+  <rect x="212" y="239" width="6"   height="15"/>
+  <rect x="237" y="262" width="22"  height="58"/>
+  <rect x="259" y="243" width="30"  height="77"/>
+  <rect x="263" y="230" width="6"   height="15"/>
+  <rect x="289" y="255" width="26"  height="65"/>
+  <rect x="315" y="240" width="32"  height="80"/>
+  <rect x="319" y="226" width="6"   height="16"/>
+  <rect x="327" y="226" width="6"   height="16"/>
+</g>
+
+<!-- ── NOTRE-DAME ── -->
+<g fill="#040714">
+  <!-- Cathedral body -->
+  <rect x="345" y="242" width="98" height="78"/>
+  <!-- West facade towers -->
+  <rect x="347" y="196" width="30" height="48"/>
+  <rect x="411" y="196" width="30" height="48"/>
+  <!-- Tower crenellations (suggestion) -->
+  <rect x="347" y="190" width="7"  height="9"/>
+  <rect x="358" y="190" width="7"  height="9"/>
+  <rect x="369" y="190" width="7"  height="9"/>
+  <rect x="411" y="190" width="7"  height="9"/>
+  <rect x="422" y="190" width="7"  height="9"/>
+  <rect x="433" y="190" width="7"  height="9"/>
+  <!-- Central rose window band -->
+  <rect x="377" y="226" width="34" height="16"/>
+  <!-- Spire (pre-2019) -->
+  <polygon points="393,145 397,198 389,198"/>
+  <!-- Flying buttress hints -->
+  <polygon points="341,285 347,268 347,285"/>
+  <polygon points="443,268 443,285 449,285"/>
+</g>
+
+<!-- ── BUILDINGS between Notre-Dame and Eiffel ── -->
+<g fill="#040714">
+  <rect x="445" y="254" width="22" height="66"/>
+  <rect x="449" y="241" width="5"  height="15"/>
+  <rect x="467" y="262" width="19" height="58"/>
+  <rect x="486" y="246" width="26" height="74"/>
+  <rect x="490" y="232" width="5"  height="16"/>
+  <rect x="512" y="255" width="20" height="65"/>
+  <rect x="532" y="244" width="24" height="76"/>
+  <rect x="536" y="230" width="5"  height="16"/>
+</g>
+
+<!-- ── EIFFEL TOWER ── (center x=600, base y=320) -->
+<g>
+  <!-- Eiffel Tower golden glow underneath — wide base bloom -->
+  <ellipse cx="600" cy="310" rx="180" ry="30" fill="url(#tglow)"/>
+  <!-- Extra wide ambient light column rising from tower -->
+  <rect x="540" y="30" width="120" height="290" fill="url(#tcolumn)" opacity="0.35"/>
+
+  <!-- Main tower silhouette — warm golden fill -->
+  <path fill="url(#towergrad)" d="
+    M 600,30
+    L 604,76
+    L 645,134 L 655,141 L 655,154
+    L 621,170
+    L 704,212 L 706,230
+    C 763,280 770,308 772,320
+    L 428,320
+    C 430,308 437,280 494,230
+    L 496,212
+    L 579,170
+    L 545,154 L 545,141 L 555,134
+    L 596,76
+    Z
+  "/>
+
+  <!-- Inner arch opening — dark sky showing through base arch -->
+  <path fill="#07091c" d="
+    M 496,230
+    C 515,295 550,312 600,316
+    C 650,312 685,295 704,230
+    L 690,220
+    C 674,278 642,298 600,302
+    C 558,298 526,278 510,220
+    Z
+  "/>
+
+  <!-- 1st platform ledge glow (y≈154) -->
+  <rect x="544" y="151" width="112" height="5" fill="#d4a035" opacity="0.65" rx="1"/>
+  <rect x="544" y="151" width="112" height="10" fill="url(#platglow1)" opacity="0.6"/>
+
+  <!-- 2nd platform ledge glow (y≈212) -->
+  <rect x="495" y="209" width="210" height="5" fill="#d4a035" opacity="0.65" rx="1"/>
+  <rect x="495" y="209" width="210" height="12" fill="url(#platglow2)" opacity="0.6"/>
+
+  <!-- Lattice sparkle dots — tiny window lights scattered across body -->
+  <g fill="#f0c060" opacity="0.55">
+    <rect x="582" y="90"  width="2" height="2"/>
+    <rect x="610" y="88"  width="2" height="2"/>
+    <rect x="570" y="110" width="2" height="2"/>
+    <rect x="624" y="108" width="2" height="2"/>
+    <rect x="558" y="128" width="2" height="2"/>
+    <rect x="637" y="126" width="2" height="2"/>
+    <rect x="548" y="162" width="2" height="2"/>
+    <rect x="648" y="160" width="2" height="2"/>
+    <rect x="570" y="178" width="2" height="2"/>
+    <rect x="626" y="176" width="2" height="2"/>
+    <rect x="548" y="194" width="2" height="2"/>
+    <rect x="648" y="192" width="2" height="2"/>
+    <rect x="522" y="220" width="2" height="2"/>
+    <rect x="675" y="218" width="2" height="2"/>
+    <rect x="506" y="240" width="2" height="2"/>
+    <rect x="690" y="238" width="2" height="2"/>
+  </g>
+
+  <!-- Antenna beacon glow -->
+  <circle cx="600" cy="30" r="14" fill="rgba(255,80,60,0.6)" filter="url(#beacon)">
+    <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Hard antenna dot -->
+  <circle cx="600" cy="30" r="3" fill="rgba(255,140,120,0.95)">
+    <animate attributeName="opacity" values="1;0.15;1" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
+</g>
+
+<!-- ── BUILDINGS right of Eiffel ── -->
+<g fill="#040714">
+  <rect x="774" y="255" width="22" height="65"/>
+  <rect x="796" y="240" width="30" height="80"/>
+  <rect x="800" y="226" width="6"  height="16"/>
+  <rect x="808" y="226" width="6"  height="16"/>
+  <rect x="826" y="252" width="24" height="68"/>
+  <rect x="850" y="244" width="20" height="76"/>
+  <polygon points="870,244 880,228 890,244"/><!-- mansard -->
+  <rect x="870" y="244" width="20" height="76"/>
+  <rect x="890" y="258" width="26" height="62"/>
+  <rect x="893" y="244" width="5"  height="16"/>
+  <rect x="916" y="246" width="22" height="74"/>
+  <rect x="938" y="260" width="24" height="60"/>
+  <rect x="962" y="244" width="20" height="76"/>
+  <rect x="965" y="230" width="5"  height="16"/>
+</g>
+
+<!-- ── SACRÉ-CŒUR (on Montmartre hill) ── -->
+<g>
+  <!-- The hill of Montmartre -->
+  <path fill="#040714" d="
+    M 982,290 Q 1000,258 1020,248 Q 1055,236 1090,248 Q 1110,256 1128,272 L 1128,320 L 982,320 Z
+  "/>
+  <!-- Cathedral base -->
+  <rect x="1010" y="256" width="84" height="64" fill="#040714"/>
+  <!-- Side bell towers -->
+  <rect x="1010" y="234" width="18" height="24" fill="#040714"/>
+  <rect x="1076" y="234" width="18" height="24" fill="#040714"/>
+  <!-- Side tower domes (rounded top) -->
+  <ellipse cx="1019" cy="232" rx="10" ry="6"  fill="#040714"/>
+  <ellipse cx="1085" cy="232" rx="10" ry="6"  fill="#040714"/>
+  <!-- Main dome -->
+  <ellipse cx="1052" cy="235" rx="24" ry="15" fill="#040714"/>
+  <!-- Dome lantern + small dome on top -->
+  <rect x="1049" y="217" width="6"  height="19" fill="#040714"/>
+  <ellipse cx="1052" cy="216" rx="7" ry="4"    fill="#040714"/>
+  <!-- Front smaller dome -->
+  <ellipse cx="1052" cy="254" rx="16" ry="8"   fill="#040714"/>
+</g>
+
+<!-- ── FAR RIGHT BUILDINGS ── -->
+<g fill="#040714">
+  <rect x="1130" y="258" width="24" height="62"/>
+  <rect x="1154" y="242" width="30" height="78"/>
+  <rect x="1158" y="228" width="6"  height="16"/>
+  <rect x="1184" y="254" width="16" height="66"/>
+  <rect x="1200" y="260" width="1"  height="60"/>
+</g>
+
+<!-- ── GROUND solid fill ── -->
+<rect x="0" y="318" width="1200" height="4" fill="#030610"/>
+
+<!-- ── SEINE RIVER reflection band ── -->
+<rect x="0" y="308" width="1200" height="10" fill="url(#seine)" opacity="0.6"/>
+
+<!-- ── MIST at base ── -->
+<rect x="0" y="268" width="1200" height="52" fill="url(#mist)" opacity="0.45"/>
+
+</svg>
+</div><!-- end skyline-wrap -->
+
+
+<!-- ══ CONTENT ════════════════════════════════════════════════════════ -->
+<div class="content">
+
+  <!-- Return banner -->
+  <div class="return-banner" id="return-banner">
+    <div class="rb-text">
+      <strong id="rb-title"></strong>
+      <span id="rb-sub"></span>
     </div>
+    <a href="#" class="rb-btn" id="rb-link">→</a>
   </div>
 
-  <div class="waarom-ai">
-    <div class="ai-icon">🤖</div>
-    <p>De centrale vraag van dit project: <strong>hoe ver kom je met AI als je enige leercoach?</strong> Geen dure app, geen gamificatie, geen vaste methode. Alleen een goed geformuleerde vraag aan Claude — en kijken wat er mogelijk is. Deze pagina's zijn de gereedschappen die ik daarvoor bouw, stap voor stap.</p>
+  <!-- Mini French flag -->
+  <div class="flag-row" id="flag-row">
+    <div class="b"></div><div class="w"></div><div class="r"></div>
   </div>
 
-  <div class="fase-label">
-    <span class="fase-num">Fase 1</span>
-    <span class="fase-titel">Grammatica · B1 → B2</span>
-    <span class="fase-lijn"></span>
+  <!-- Bilingual site name -->
+  <div class="site-name" id="site-name">
+    Frans op z'n <span class="g">AI's</span>
+    <span class="s">·</span>
+    French the <span class="g">AI Way</span>
   </div>
-  <div class="routes">
-    <div class="route-card">
-      <div class="route-top">
-        <div class="route-meta">
-          <span class="route-badge badge-actief">✓ Beschikbaar</span>
-          <span class="route-niveau">Start hier</span>
-        </div>
-        <div class="route-titel">Doe de niveautest en<br>krijg jouw leerplan</div>
-        <p class="route-sub">10 vragen die precies bepalen welke grammaticastructuren jou nog onderscheiden van een echte B2-spreker. Het leerplan daarna past zich automatisch aan op wat jij fout had — niet op wat een gemiddelde leerling fout heeft.</p>
-      </div>
-      <div class="route-stappen">
-        <div class="stap done"><span class="stap-num">✓</span><span>Niveautest (10 vragen)</span></div>
-        <div class="stap done"><span class="stap-num">✓</span><span>Persoonlijk leerplan</span></div>
-        <div class="stap"><span class="stap-num">→</span><span>Kies je vervolg</span></div>
-      </div>
-      <div class="route-cta">
-        <a href="franstest-b1-b2.html" class="btn-route"><span>Start de niveautest</span><span class="arrow">→</span></a>
-        <div class="cta-sub">⏱ 5 minuten · 10 vragen</div>
-      </div>
+
+  <!-- Quote + typewriter -->
+  <div class="quote-block" id="quote-block">
+    <div class="quote-text">
+      <span id="typed"></span><span class="cursor" id="cursor"></span>
     </div>
+    <div class="quote-attr" id="quote-attr">— Ernest Hemingway</div>
   </div>
 
-  <div id="fase-vergrendeld">
-    <div class="slot-icon">🔒</div>
-    <div class="slot-titel">Fase 2 &amp; 3 worden zichtbaar na de test</div>
-    <p class="slot-sub">Doe eerst de niveautest. Daarna past de rest van dit platform zich aan op jouw resultaten — en worden fase 2 en 3 hier zichtbaar.</p>
-    <div class="slot-pijl">↑ Start hierboven met de niveautest</div>
+  <!-- Ornament divider -->
+  <div class="divider" id="divider">
+    <div class="divider-line"></div>
+    <div class="divider-gem"></div>
+    <div class="divider-gem" style="opacity:.38;transform:rotate(45deg) scale(.58)"></div>
+    <div class="divider-gem"></div>
+    <div class="divider-line"></div>
   </div>
 
-  <div id="fase-2-3">
+  <!-- Choose label -->
+  <div class="choose-lbl" id="choose-lbl">Kies je taal &nbsp;·&nbsp; Choose your language</div>
 
-    <div class="fase-label">
-      <span class="fase-num">Fase 2</span>
-      <span class="fase-titel">Kies hoe je verder oefent</span>
-      <span class="fase-lijn"></span>
-    </div>
-    <p class="keuze-intro">Na de test en het leerplan bepaal jij hoe je verder gaat. Vier aanpakken — kies wat bij je past. Niet alles hoeft, niet alles tegelijk.</p>
-    <div class="keuze-grid">
-
-      <a href="dagelijks-oefenen.html" class="keuze-card" style="border-color:#e8d89a">
-        <div class="keuze-card-top"><div class="keuze-icon">📅</div><span class="keuze-status status-actief">✓ Beschikbaar</span></div>
-        <div class="keuze-titel">Dagelijkse minioefening</div>
-        <p class="keuze-sub">1 tot 50 vragen per sessie, gebaseerd op jouw zwakke punten. Uitleg na elk antwoord. Eindscore. Zonder streak-druk.</p>
-        <span class="keuze-tag">⏱ Jij bepaalt hoelang</span>
-      </a>
-
-      <a href="schrijfoefening.html" class="keuze-card" style="border-color:#e8d89a">
-        <div class="keuze-card-top"><div class="keuze-icon">✍️</div><span class="keuze-status status-actief">✓ Beschikbaar</span></div>
-        <div class="keuze-titel">Schrijfoefening met Claude</div>
-        <p class="keuze-sub">Schrijf een paar zinnen in het Frans. Krijg een kant-en-klare Claude-prompt die jouw tekst analyseert op precies jouw grammaticafouten.</p>
-        <span class="keuze-tag">✍ Schrijven + correctie</span>
-      </a>
-
-      <a href="hertest.html" class="keuze-card" style="border-color:#e8d89a">
-        <div class="keuze-card-top"><div class="keuze-icon">📈</div><span class="keuze-status status-actief">✓ Beschikbaar</span></div>
-        <div class="keuze-titel">Hertest — ben ik gegroeid?</div>
-        <p class="keuze-sub">Dezelfde onderwerpen, andere vragen. Na een paar weken oefenen vergelijk je jouw nieuwe score met de eerste test.</p>
-        <span class="keuze-tag">📊 Voortgang meten</span>
-      </a>
-
-      <a href="niveausprong.html" class="keuze-card" style="border-color:#e8d89a">
-        <div class="keuze-card-top"><div class="keuze-icon">🎯</div><span class="keuze-status status-actief">✓ Beschikbaar</span></div>
-        <div class="keuze-titel">Niveausprong-check</div>
-        <p class="keuze-sub">5 gerichte vragen op alleen de onderwerpen die je eerder fout had. Klaar voor B2? Dit is de check.</p>
-        <span class="keuze-tag">⚡ Snel · gefocust</span>
-      </a>
-
-    </div>
-
-    <div class="fase-label">
-      <span class="fase-num">Fase 3</span>
-      <span class="fase-titel">Gespreksvaardigheid</span>
-      <span class="fase-lijn"></span>
-    </div>
-    <div class="routes">
-      <div class="route-card">
-        <div class="route-top">
-          <div class="route-meta"><span class="route-badge badge-actief">✓ Beschikbaar</span><span class="route-niveau">Spreken & begrijpen</span></div>
-          <div class="route-titel">Oefenen in gesprek<br>met Claude</div>
-          <p class="route-sub">Geen meerkeuze, geen theorie — gewoon Frans praten. Kies een onderwerp, voer het gesprek in Claude, en vraag daarna een eerlijke ERK-analyse van jouw niveau. Wat gaat goed, wat kan beter, en wat is de volgende stap?</p>
-        </div>
-        <div class="route-stappen">
-          <div class="stap done"><span class="stap-num">✓</span><span>Gespreksniveaucheck</span></div>
-          <div class="stap"><span class="stap-num">2</span><span>Gerichte oefengesprekken</span></div>
-          <div class="stap"><span class="stap-num">3</span><span>Voortgangscheck</span></div>
-        </div>
-        <div class="route-cta">
-          <a href="conversatie-check.html" class="btn-route"><span>Start de gespreksoefening</span><span class="arrow">→</span></a>
-          <div class="cta-sub">🗣 Praat Frans · krijg persoonlijke feedback</div>
-        </div>
-      </div>
-    </div>
-
+  <!-- Language cards -->
+  <div class="lang-grid" id="lang-grid">
+    <a class="lang-card" href="index-nl.html" id="card-nl" onclick="saveLang('nl')">
+      <div class="prev-badge" id="badge-nl">← Vorige keuze</div>
+      <div class="card-flag">🇳🇱</div>
+      <div class="card-name">Nederlands</div>
+      <div class="card-arr">→</div>
+    </a>
+    <a class="lang-card" href="index_en.html" id="card-en" onclick="saveLang('en')">
+      <div class="prev-badge" id="badge-en">← Previous choice</div>
+      <div class="card-flag">🇬🇧</div>
+      <div class="card-name">English</div>
+      <div class="card-arr">→</div>
+    </a>
   </div>
 
-  <div class="manifest">
-    <div class="manifest-title">Hoe dit werkt</div>
-    <div class="manifest-grid">
-      <div class="manifest-item"><div class="manifest-icon">🎯</div><div class="manifest-tekst"><strong>Adaptief, niet generiek</strong>Het leerplan is gebaseerd op jouw fouten — niet op een vaste lessenreeks.</div></div>
-      <div class="manifest-item"><div class="manifest-icon">🇫🇷</div><div class="manifest-tekst"><strong>Uitleg in het Nederlands</strong>Grammatica in je moedertaal begrijpen, toepassen in het Frans.</div></div>
-      <div class="manifest-item"><div class="manifest-icon">🤖</div><div class="manifest-tekst"><strong>Claude als coach</strong>Elke les bevat een kant-en-klare prompt — kopieer en plak in Claude.</div></div>
-      <div class="manifest-item"><div class="manifest-icon">🔁</div><div class="manifest-tekst"><strong>Herhalen wat nodig is</strong>Wat je al beheerst sla je over. Wat lastig is, komt terug.</div></div>
-    </div>
+  <!-- Switch language -->
+  <div class="switch-row" id="switch-row" style="display:none">
+    Andere voorkeur? &nbsp;
+    <button onclick="clearLang()">Taal wisselen · Switch language</button>
   </div>
 
-</div>
+</div><!-- end content -->
+
+
 <script>
-  if (localStorage.getItem('fransTestResults')) {
-    document.getElementById('fase-vergrendeld').style.display = 'none';
-    document.getElementById('fase-2-3').classList.add('zichtbaar');
+// ══ CONFIG ═══════════════════════════════════════════════════════════
+const QUOTE  = "Paris est une fête.";
+const NL_URL = 'index-nl.html';
+const EN_URL = 'index_en.html';
+const LS_KEY = 'fransLang';
+
+// ══ STARS ═════════════════════════════════════════════════════════════
+(function () {
+  const cv  = document.getElementById('star-canvas');
+  const ctx = cv.getContext('2d');
+
+  function size() {
+    cv.width  = window.innerWidth;
+    cv.height = window.innerHeight;
+  }
+  size();
+  window.addEventListener('resize', size);
+
+  // Generate stars — only upper 70% of screen (sky area)
+  const TOTAL = 210;
+  const stars = Array.from({ length: TOTAL }, () => ({
+    x:     Math.random(),
+    y:     Math.random() * 0.70,
+    r:     0.35 + Math.random() * 1.4,
+    base:  0.3  + Math.random() * 0.68,
+    spd:   0.4  + Math.random() * 2.2,
+    phi:   Math.random() * Math.PI * 2,
+    warm:  Math.random() < 0.12,
+  }));
+
+  // A handful of "shooting star" candidates
+  let shooters = [];
+  function maybeShoot() {
+    if (Math.random() < 0.004 && shooters.length < 2) {
+      shooters.push({
+        x: Math.random() * 0.6 + 0.1,
+        y: Math.random() * 0.3,
+        vx: (0.004 + Math.random() * 0.006),
+        vy: (0.002 + Math.random() * 0.003),
+        life: 1, decay: 0.025 + Math.random() * 0.02,
+      });
+    }
+    shooters = shooters.filter(s => s.life > 0);
   }
 
-  function toggleVideo(ring) {
-    const video = ring.querySelector('video');
-    video.muted = !video.muted;
-    const overlay = ring.querySelector('.play-overlay');
-    overlay.textContent = video.muted ? '🔇' : '🔊';
-    overlay.style.opacity = '1';
-    setTimeout(() => { overlay.style.opacity = '0'; }, 1200);
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    t += 0.007;
+
+    // Twinkling stars
+    stars.forEach(s => {
+      const a = s.base * (0.5 + 0.5 * Math.sin(t * s.spd + s.phi));
+      ctx.beginPath();
+      ctx.arc(s.x * cv.width, s.y * cv.height, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = s.warm
+        ? `rgba(255,215,140,${a})`
+        : `rgba(210,220,255,${a})`;
+      ctx.fill();
+    });
+
+    // Shooting stars
+    maybeShoot();
+    shooters.forEach(s => {
+      const x1 = s.x * cv.width;
+      const y1 = s.y * cv.height;
+      const x2 = x1 - s.vx * cv.width  * 18 * (1 - s.life);
+      const y2 = y1 - s.vy * cv.height * 18 * (1 - s.life);
+      const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+      grad.addColorStop(0,   `rgba(255,245,210,${s.life * 0.85})`);
+      grad.addColorStop(1,   `rgba(255,245,210,0)`);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = 1.5;
+      ctx.stroke();
+      s.x += s.vx; s.y += s.vy; s.life -= s.decay;
+    });
+
+    requestAnimationFrame(draw);
   }
+  draw();
+})();
+
+// ══ LANGUAGE PREFERENCE ═══════════════════════════════════════════════
+const stored = localStorage.getItem(LS_KEY);
+
+if (stored) {
+  const banner = document.getElementById('return-banner');
+  const title  = document.getElementById('rb-title');
+  const sub    = document.getElementById('rb-sub');
+  const link   = document.getElementById('rb-link');
+
+  if (stored === 'nl') {
+    title.textContent = 'Welkom terug!';
+    sub.textContent   = 'Je taalvoorkeur staat op Nederlands.';
+    link.textContent  = 'Doorgaan in het Nederlands →';
+    link.href         = NL_URL;
+    document.getElementById('badge-nl').style.display = 'block';
+  } else {
+    title.textContent = 'Welcome back!';
+    sub.textContent   = 'Your language preference is set to English.';
+    link.textContent  = 'Continue in English →';
+    link.href         = EN_URL;
+    document.getElementById('badge-en').style.display = 'block';
+  }
+
+  banner.classList.add('show');
+  requestAnimationFrame(() => requestAnimationFrame(() => banner.classList.add('visible')));
+
+  const sw = document.getElementById('switch-row');
+  sw.style.display = 'block';
+}
+
+function saveLang(lang) { localStorage.setItem(LS_KEY, lang); }
+function clearLang()     { localStorage.removeItem(LS_KEY); location.reload(); }
+
+
+// ══ ANIMATION HELPERS ═════════════════════════════════════════════════
+function reveal(id, delay) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('vis');
+  }, delay);
+}
+
+// ══ TYPEWRITER ════════════════════════════════════════════════════════
+function typewriter(text, el, cursor, done) {
+  let i = 0;
+  function tick() {
+    if (i < text.length) {
+      el.textContent += text[i];
+      const ch = text[i++];
+      const wait = (ch === '.' || ch === ',' || ch === '!') ? 280
+                 : 44 + Math.random() * 26 - 8;
+      setTimeout(tick, wait);
+    } else {
+      setTimeout(() => {
+        cursor.style.animation = 'none';
+        cursor.style.opacity   = '0';
+        if (done) done();
+      }, 950);
+    }
+  }
+  tick();
+}
+
+// ══ ENTRANCE SEQUENCE ═════════════════════════════════════════════════
+const BASE = stored ? 80 : 300;
+
+reveal('flag-row',  BASE);
+reveal('site-name', BASE + 260);
+
+setTimeout(() => {
+  document.getElementById('quote-block').classList.add('vis');
+  typewriter(
+    QUOTE,
+    document.getElementById('typed'),
+    document.getElementById('cursor'),
+    () => {
+      reveal('quote-attr',  220);
+      reveal('divider',     450);
+      reveal('choose-lbl',  680);
+      reveal('lang-grid',   900);
+      if (stored) reveal('switch-row', 1100);
+    }
+  );
+}, BASE + 740);
 </script>
 </body>
 </html>

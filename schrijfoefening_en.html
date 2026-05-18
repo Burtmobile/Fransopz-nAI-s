@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Exercise — French the AI Way</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;1,300;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink: #1a1814;
+    --gold: #c8952a;
+    --gold-light: #e8c87a;
+    --gold-pale: #fdf8ef;
+    --blue-fr: #0a2e6e;
+    --red-fr: #c1121f;
+    --muted: #8a8070;
+    --card: #ffffff;
+    --border: #e0d8c8;
+    --correct: #1a6b3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(200,149,42,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 85% 75%, rgba(10,46,110,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 48px 24px 100px;
+  }
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 56px;
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo span { color: var(--gold); }
+
+  .flag { display: flex; gap: 2px; height: 16px; }
+  .flag div { width: 8px; border-radius: 1px; }
+  .flag .b { background: var(--blue-fr); }
+  .flag .w { background: #fff; border: 1px solid #ddd; }
+  .flag .r { background: var(--red-fr); }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold-light);
+    max-width: 60px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  h1 em { font-style: italic; font-weight: 600; color: var(--gold); }
+
+  .intro-sub {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 40px;
+    max-width: 540px;
+  }
+
+  /* Zwakke punten banner */
+  .zwak-banner {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .zwak-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .zwak-tekst { font-size: 12px; line-height: 1.8; color: #c8c0a8; }
+  .zwak-tekst strong { color: var(--gold-light); font-weight: 500; }
+  .zwak-lijst {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .zwak-tag {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    background: rgba(200,149,42,0.2);
+    border: 1px solid rgba(200,149,42,0.3);
+    color: var(--gold-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* Schrijfveld */
+  .schrijf-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+
+  .schrijf-top {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .schrijf-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .schrijf-area {
+    width: 100%;
+    min-height: 180px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink);
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .schrijf-area:focus { outline: none; border-color: var(--gold); }
+  .schrijf-area::placeholder { color: #b8a890; }
+
+  .schrijf-hint {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .schrijf-bottom {
+    padding: 16px 28px;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .teken-teller {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .btn-genereer {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    padding: 11px 22px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-genereer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 0;
+  }
+  .btn-genereer:hover::after { transform: translateX(0); }
+  .btn-genereer:hover { color: var(--ink); }
+  .btn-genereer span { position: relative; z-index: 1; }
+  .btn-genereer:disabled { background: #d4cdb8; color: #a09080; cursor: default; }
+  .btn-genereer:disabled::after { display: none; }
+
+  /* Claude prompt resultaat */
+  .prompt-resultaat {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .prompt-header {
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .prompt-titel {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .btn-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 8px 16px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-copy:hover { background: var(--gold); color: var(--ink); }
+  .btn-copy.copied { border-color: var(--correct); color: var(--correct); }
+
+  .prompt-tekst {
+    padding: 20px 28px;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: #3a3530;
+    white-space: pre-wrap;
+    background: #fafaf7;
+    border-bottom: 1px solid var(--border);
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .prompt-footer {
+    padding: 16px 28px;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .prompt-stap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .stap-num-klein {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .prompt-stap:not(:last-child)::after {
+    content: '→';
+    color: var(--gold-light);
+    margin-left: 6px;
+  }
+
+  /* Terug link */
+  .terug {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 40px;
+    transition: color 0.2s;
+  }
+  .terug:hover { color: var(--ink); }
+
+  /* Geen test */
+  .geen-test {
+    background: var(--card);
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 40px 28px;
+    text-align: center;
+  }
+  .geen-test-icon { font-size: 32px; margin-bottom: 16px; }
+  .geen-test h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .geen-test p { font-size: 12.5px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+
+  .btn-test {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    padding: 11px 22px;
+    border-radius: 2px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="site-header">
+    <a href="index.html" class="logo">French the <span>AI Way</span></a>
+    <div class="flag"><div class="b"></div><div class="w"></div><div class="r"></div></div>
+  </div>
+
+  <a href="index.html" class="terug">← Back to overview</a>
+
+  <!-- Geen test gedaan -->
+  <div id="geen-test-blok" style="display:none">
+    <div class="geen-test">
+      <div class="geen-test-icon">🔒</div>
+      <h2>Take the level test first</h2>
+      <p>The writing exercise is tailored to your weak grammar points.<br>Take the test first so the feedback is truly personal.</p>
+      <a href="franstest-b1-b2.html" class="btn-test"><span>Go to the level test</span> →</a>
+    </div>
+  </div>
+
+  <!-- Hoofdinhoud -->
+  <div id="hoofd-blok" style="display:none">
+
+    <div class="eyebrow">Writing Exercise</div>
+    <h1>Write French,<br>get <em>targeted feedback.</em></h1>
+    <p class="intro-sub">
+      Write a few sentences in French — about anything you like.
+      The generated Claude prompt analyses your text specifically for
+      the grammar topics you struggle with.
+    </p>
+
+    <div class="zwak-banner">
+      <div class="zwak-icon">🎯</div>
+      <div class="zwak-tekst">
+        <strong>The feedback focuses on your weak points:</strong>
+        <div class="zwak-lijst" id="zwak-lijst"></div>
+      </div>
+    </div>
+
+    <div class="schrijf-card">
+      <div class="schrijf-top">
+        <span class="schrijf-label">Write your French text here</span>
+        <textarea
+          class="schrijf-area"
+          id="schrijf-area"
+          placeholder="Write 3 to 5 sentences in French here. Choose your own topic — a memory, an opinion, a description. The more you write, the more targeted the feedback."
+          oninput="updateTeller()"
+        ></textarea>
+        <div class="schrijf-hint">
+          💡 Tip: try to consciously use the grammar topics you find difficult — that's how you learn the most from the feedback.
+        </div>
+      </div>
+      <div class="schrijf-bottom">
+        <span class="teken-teller" id="teken-teller">0 characters</span>
+        <button class="btn-genereer" id="btn-genereer" onclick="genereerPrompt()" disabled>
+          <span>Generate Claude prompt</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="prompt-resultaat" id="prompt-resultaat">
+      <div class="prompt-header">
+        <div class="prompt-titel">🤖 Your personal Claude prompt</div>
+        <button class="btn-copy" id="btn-copy" onclick="kopieerPrompt()">📋 Copy prompt</button>
+      </div>
+      <div class="prompt-tekst" id="prompt-tekst"></div>
+      <div class="prompt-footer">
+        <div class="prompt-stap">
+          <span class="stap-num-klein">1</span>
+          <span>Copy the prompt</span>
+        </div>
+        <div class="prompt-stap">
+          <span class="stap-num-klein">2</span>
+          <span>Open claude.ai</span>
+        </div>
+        <div class="prompt-stap">
+          <span class="stap-num-klein">3</span>
+          <span>Paste and send</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<script>
+const stored = localStorage.getItem('fransTestResults');
+
+// Onderwerplabels
+const onderwerpLabels = {
+  'Subjonctif na vouloir que': 'Subjonctif (will/emotion)',
+  'Après avoir/être': 'Après avoir/être',
+  'Passieve zin': 'Passive sentence',
+  'Relatief voornaamwoord dont': 'Dont / relative pronouns',
+  'Imparfait vs passé composé': 'Imparfait vs passé composé',
+  'Bien que + subjonctif': 'Bien que + subjonctif',
+  'Si-zin hypothetisch verleden': 'Si clauses (conditional)',
+  'Gérondif': 'Gérondif (en + -ant)',
+  'Nominalisering': 'Nominalisation (formal French)',
+  'Au cas où': 'Au cas où / conjunctions'
+};
+
+if (!stored) {
+  document.getElementById('geen-test-blok').style.display = 'block';
+} else {
+  document.getElementById('hoofd-blok').style.display = 'block';
+  const data = JSON.parse(stored);
+  const zwakke = data.wrongTopics || [];
+
+  const lijst = document.getElementById('zwak-lijst');
+  if (zwakke.length === 0) {
+    lijst.innerHTML = '<span style="color:#a0d8b0;font-size:11px">No weak points found — you already master everything!</span>';
+  } else {
+    zwakke.forEach(t => {
+      const label = onderwerpLabels[t] || t;
+      lijst.innerHTML += `<span class="zwak-tag">${label}</span>`;
+    });
+  }
+}
+
+function updateTeller() {
+  const area = document.getElementById('schrijf-area');
+  const len = area.value.trim().length;
+  document.getElementById('teken-teller').textContent = `${len} characters`;
+  document.getElementById('btn-genereer').disabled = len < 30;
+}
+
+function genereerPrompt() {
+  const tekst = document.getElementById('schrijf-area').value.trim();
+  if (tekst.length < 30) return;
+
+  const data = JSON.parse(localStorage.getItem('fransTestResults') || '{}');
+  const zwakke = data.wrongTopics || [];
+  const score = data.score ?? '—';
+
+  let focuspunten = '';
+  if (zwakke.length > 0) {
+    const labels = zwakke.map(t => onderwerpLabels[t] || t);
+    focuspunten = `\n\nPlease focus your feedback specifically on these grammar topics that I previously got wrong:\n${labels.map(l => `- ${l}`).join('\n')}`;
+  }
+
+  const prompt = `I am learning French and want to bring my grammar from B1 to B2. I have written this text:
+
+---
+${tekst}
+---
+
+Give me detailed feedback on this text. Do this in three steps:
+
+1. **Corrections** — Correct all grammatical errors. Place the error next to the correction and explain in English why it was wrong.
+
+2. **Analysis** — Which grammar topics do I use well? What is still missing or do I unconsciously avoid?${focuspunten}
+
+3. **Improved version** — Rewrite my text at B2 level, with richer grammar and more varied sentence structures.
+
+Give all explanations in English, all French sentences in French.`;
+
+  document.getElementById('prompt-tekst').textContent = prompt;
+  const resultaat = document.getElementById('prompt-resultaat');
+  resultaat.style.display = 'block';
+  setTimeout(() => resultaat.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function kopieerPrompt() {
+  const tekst = document.getElementById('prompt-tekst').textContent;
+  navigator.clipboard.writeText(tekst).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy prompt';
+      btn.classList.remove('copied');
+    }, 2500);
+  });
+}
+</script>
+</body>
+</html>
